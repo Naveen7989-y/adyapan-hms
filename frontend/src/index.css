@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --color-gold-amber: #C68A0C;
+  --color-gold-amber-light: #F9D054;
+  --color-deep-navy: #0B1524;
+  --color-deep-navy-dark: #070D18;
+  --color-warm-beige: #FAF8F5;
+  --color-warm-beige-border: #E8DFD5;
+  --color-pure-white: #FFFFFF;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-warm-beige);
+  color: var(--color-deep-navy);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Warm Beige & Deep Navy Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F4EFEA;
+}
+::-webkit-scrollbar-thumb {
+  background: #D8CCC0;
+  border-radius: 9999px;
+  border: 2px solid #F4EFEA;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C2B4A3;
+}
+
+/* Gold Amber text selection */
+::selection {
+  background-color: #FDF0C6;
+  color: #5C3B07;
+}
+
+/* Futuristic Cyber Grid Background */
+.bg-cyber-grid {
+  background-image: radial-gradient(rgba(198, 138, 12, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-cyber-grid-dark {
+  background-image: radial-gradient(rgba(249, 208, 84, 0.12) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Futuristic Glassmorphism Panels */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(232, 223, 213, 0.9);
+}
+
+.glass-panel-dark {
+  background: rgba(11, 21, 36, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(198, 138, 12, 0.35);
+}
+
+/* Futuristic Interactive Card Hover Elevation */
+.interactive-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.interactive-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -6px rgba(11, 21, 36, 0.08), 0 0 15px 0 rgba(198, 138, 12, 0.12);
+  border-color: rgba(198, 138, 12, 0.4);
+}
+
+/* Neon Gold Border Beam */
+.neon-border-gold {
+  position: relative;
+  overflow: hidden;
+}
+
+.neon-border-gold::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #F9D054, #C68A0C, transparent);
+  animation: borderSweep 3s infinite linear;
+}
+
+@keyframes borderSweep {
+  0% { left: -50%; }
+  100% { left: 150%; }
+}
+
+/* Marquee Ticker Animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 30s linear infinite;
+}
+
+/* Accessibility: Respect Reduced Motion Preferences in Production */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

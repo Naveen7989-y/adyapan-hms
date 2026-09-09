@@ -1,0 +1,11 @@
+node_modules
+.env
+dist
+coverage
+*.log
+.DS_Store
+.vscode
+.idea
+.pgdata
+*.zip
+Adyapan-Hospital-Queue-Appointment-System/
