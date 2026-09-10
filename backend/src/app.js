@@ -50,6 +50,15 @@ if (config.nodeEnv === 'production') {
 // Global API Rate Limiting
 app.use('/api', generalApiLimiter);
 
+// Healthcare Data Security: Prevent client/proxy disk caching of sensitive clinical records
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
 // API Routes
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
