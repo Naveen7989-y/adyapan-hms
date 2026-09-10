@@ -20,7 +20,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 
 const navigationItems = [
-  { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['*'] },
+  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['*'] },
   { name: 'API Health Check', path: '/health-check', icon: Server, roles: ['*'] },
   {
     name: 'Staff Users',

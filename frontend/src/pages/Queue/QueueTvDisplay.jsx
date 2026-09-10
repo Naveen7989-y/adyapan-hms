@@ -11,7 +11,7 @@ import {
   ArrowRight,
   ShieldCheck,
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import { getSocket } from '../../services/socket';
 
 export default function QueueTvDisplay() {
@@ -29,11 +29,11 @@ export default function QueueTvDisplay() {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch TV Display data every 4 seconds
+  // Fetch TV Display data
   const fetchDisplay = async () => {
     try {
-      const res = await axios.get('/api/queue/public-display');
-      const data = res.data?.data;
+      const res = await api.get('/queue/public-display');
+      const data = res?.data || res;
       setDisplayData(data);
 
       // Check if there's an announcement to speak

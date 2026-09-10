@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import {
@@ -8,6 +8,7 @@ import {
   Mail,
   AlertCircle,
   ArrowRight,
+  ArrowLeft,
   UserCheck,
   Stethoscope,
   Heart,
@@ -103,7 +104,7 @@ export const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || '/';
+  const from = location.state?.from?.pathname || '/dashboard';
 
   // Dynamically load active doctors from the hospital database
   useEffect(() => {
@@ -184,6 +185,16 @@ export const Login = () => {
       {/* Ambient background glow orbs */}
       <div className="absolute -top-24 -left-24 w-96 h-96 bg-amber-400/15 rounded-full blur-3xl pointer-events-none animate-float"></div>
       <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-navy-700/10 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+
+      <div className="sm:mx-auto sm:w-full sm:max-w-lg mb-3 relative z-10 px-2 flex justify-start">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-navy-800 hover:text-amber-600 transition-colors bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-beige-200 shadow-xs group"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+          <span>← Back to Public Home</span>
+        </Link>
+      </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-lg text-center relative z-10 px-2">
         <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-amber-600 to-amber-500 text-white shadow-gold-glow mb-3 animate-float">

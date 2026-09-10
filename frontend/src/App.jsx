@@ -24,27 +24,28 @@ import PharmacyDashboard from './pages/Pharmacy/PharmacyDashboard';
 import BillingDashboard from './pages/Billing/BillingDashboard';
 import ReportsDashboard from './pages/Reports/ReportsDashboard';
 import NotFound from './pages/NotFound';
+import Home from './pages/Home';
 
 function App() {
   return (
     <AuthProvider>
       <Routes>
         {/* Public Routes */}
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/queue/tv" element={<QueueTvDisplay />} />
 
         {/* Protected Staff Routes */}
         <Route
-          path="/"
           element={
             <ProtectedRoute>
               <Layout />
             </ProtectedRoute>
           }
         >
-          <Route index element={<Dashboard />} />
-          <Route path="health-check" element={<HealthCheck />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/health-check" element={<HealthCheck />} />
 
           {/* Admin Only: Staff & Role Management */}
           <Route
