@@ -92,8 +92,8 @@ const DOCTOR_CATEGORIES = [
 ];
 
 export const Login = () => {
-  const [email, setEmail] = useState('admin@adyapan.com');
-  const [password, setPassword] = useState('Password123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [quickTab, setQuickTab] = useState('doctors'); // 'doctors' | 'staff'
@@ -175,9 +175,7 @@ export const Login = () => {
     }
   };
 
-  const handleQuickFill = (accEmail) => {
-    setEmail(accEmail);
-    setPassword('Password123!');
+  const handleQuickFill = () => {
     setError(null);
   };
 
@@ -365,10 +363,6 @@ export const Login = () => {
                 })}
               </div>
             )}
-
-            <p className="text-[11px] text-slate-400 text-center mt-3">
-              Default password for all accounts: <span className="font-mono text-navy-900 font-bold">Password123!</span>
-            </p>
           </div>
         </div>
       </div>
