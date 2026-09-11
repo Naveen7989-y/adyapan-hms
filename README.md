@@ -87,8 +87,7 @@ All 18 phases have been developed, verified, and stabilized with 100% automated 
 - [x] **Phase 15:** Operational Reports, Financial Analytics, & CSV Export Engine
 - [x] **Phase 16:** Comprehensive Integration Testing & Constraint Stress Testing (16/16 Passed)
 - [x] **Phase 17:** Production Deployment, Multi-Stage Dockerfile, Nginx SPA Reverse Proxy, & Cloud Guides
-- [x] **Phase 18:** Production Readiness, PostgreSQL Migration, Socket.IO Real-Time Engine, PDF Generation, End-to-End Refunds, Security Rate Limiting & Concurrency Stress Testing (18/18 Passed)
-
+- [x] **Phase 18:** Production Readiness, PostgreSQL Migration, Socket.IO Real-Time Engine, PDF Generation, End-to-End Refunds, Security Rate Limiting & Concurrency Stress 
 ---
 
 ## 👥 Role-Based Access Control (RBAC)
@@ -129,12 +128,7 @@ Requires [Docker](https://www.docker.com/) and [Docker Compose](https://docs.doc
    docker compose up -d --build
    ```
 
-4. **Access the application:**
-   - **Frontend App:** [http://localhost](http://localhost) (or [http://localhost:5173](http://localhost:5173))
-   - **Public TV Display:** [http://localhost/queue/tv](http://localhost/queue/tv)
-   - **Backend API:** [http://localhost:5000/api/health](http://localhost:5000/api/health)
 
----
 
 ### Method 2: Local Development Setup
 
@@ -153,7 +147,6 @@ npx prisma db push
 npm run prisma:seed
 npm run dev
 ```
-Backend API will start on `http://localhost:5000`.
 
 #### 2. Frontend Setup
 ```bash
@@ -167,7 +160,7 @@ Frontend Vite development server will start on `http://localhost:5173`.
 
 ## 🔑 Seed Staff Credentials
 
-All seed users share the default password: **`Password123!`**
+
 
 | Role | Email |
 |------|-------|
