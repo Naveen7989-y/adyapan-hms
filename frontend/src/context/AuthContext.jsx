@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
       const storedToken = localStorage.getItem('adyapan_token');
       if (storedToken) {
         try {
-          const res = await api.get('/auth/me');
+          const res = await api.get('/auth/me', { timeout: 3500 });
           setUser(res.data);
         } catch (err) {
           console.warn('Stored session invalid or expired:', err.message);

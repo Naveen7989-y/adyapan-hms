@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -60,17 +61,25 @@ export default {
           800: '#56493D',
           900: '#3D332B',
         },
-        // Harmonized brand alias (Gold Amber + Deep Navy)
+        // Harmonized brand alias (Exact Brand Color Palette)
         brand: {
+          'primary-bg': '#F7F1E7',
+          'secondary-bg': '#FFF9F0',
+          'primary-text': '#14243A',
+          'secondary-text': '#526174',
+          'primary-accent': '#D99A32',
+          'hover-accent': '#B97B20',
+          'borders': '#E6D9C6',
+          'cards': '#FFFCF7',
           50: '#FAF8F5',
           100: '#FEF9E7',
           200: '#FDF0C6',
           300: '#FCE395',
           400: '#F9D054',
           500: '#E5A919',
-          600: '#C68A0C',
-          700: '#9E6907',
-          800: '#102030',
+          600: '#D99A32',
+          700: '#B97B20',
+          800: '#14243A',
           900: '#0B1524',
           950: '#070D18',
         },

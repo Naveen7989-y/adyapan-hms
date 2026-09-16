@@ -127,9 +127,11 @@ export default function PrescriptionPrintModal({ prescriptionId, prescriptionDat
               <div className="flex flex-col sm:flex-row justify-between items-start pb-6 border-b-2 border-slate-900 gap-4">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center font-black text-xl shadow">
-                      A
-                    </div>
+                    <img
+                      src="/adyapan-logo.png"
+                      alt="Adyapan Hospital Logo"
+                      className="w-11 h-11 rounded-full object-contain shadow-sm filter drop-shadow-[0_2px_6px_rgba(245,158,11,0.2)]"
+                    />
                     <div>
                       <h1 className="text-2xl font-black tracking-tight text-slate-900 uppercase">
                         {hospital?.name || 'Adyapan Central Hospital & Clinic'}

@@ -176,9 +176,11 @@ export default function InvoiceReceiptModal({
               <div className="flex flex-col sm:flex-row justify-between items-start pb-4 border-b-2 border-slate-900 gap-4">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center font-black text-lg shadow">
-                      A
-                    </div>
+                    <img
+                      src="/adyapan-logo.png"
+                      alt="Adyapan Hospital Logo"
+                      className="w-10 h-10 rounded-full object-contain shadow-sm filter drop-shadow-[0_2px_6px_rgba(245,158,11,0.2)]"
+                    />
                     <div>
                       <h1 className="text-xl font-black tracking-tight text-slate-900 uppercase">
                         {hospital?.name || 'Adyapan Central Hospital & Clinic'}

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import HeartbeatLogo from '../components/common/HeartbeatLogo';
+import ThemeToggle from '../components/common/ThemeToggle';
 import {
   Activity,
   Lock,
@@ -176,57 +178,54 @@ export const Login = () => {
     }
   };
 
-  const handleQuickFill = () => {
-    setError(null);
-  };
-
   return (
-    <div className="min-h-screen bg-[#FAF8F5] bg-cyber-grid flex flex-col justify-center py-6 sm:py-10 px-3 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-[#F7F1E7] dark:bg-[#070D18] bg-cyber-grid flex flex-col justify-center py-6 sm:py-10 px-3 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-300">
       {/* Ambient background glow orbs */}
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-amber-400/15 rounded-full blur-3xl pointer-events-none animate-float"></div>
-      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-navy-700/10 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#D99A32]/15 dark:bg-amber-400/10 rounded-full blur-3xl pointer-events-none animate-float"></div>
+      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-[#14243A]/5 dark:bg-amber-500/5 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-lg mb-3 relative z-10 px-2 flex justify-start">
+      <div className="sm:mx-auto sm:w-full sm:max-w-lg mb-3 relative z-10 px-2 flex justify-between items-center">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-navy-800 hover:text-amber-600 transition-colors bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-beige-200 shadow-xs group"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#14243A] dark:text-slate-200 hover:text-[#B97B20] dark:hover:text-amber-400 transition-colors bg-[#FFF9F0] dark:bg-navy-900/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-[#E6D9C6] dark:border-navy-700 shadow-2xs group"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
           <span>← Back to Public Home</span>
         </Link>
+        <ThemeToggle size="sm" showLabel />
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-lg text-center relative z-10 px-2">
-        <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-amber-600 to-amber-500 text-white shadow-gold-glow mb-3 animate-float">
-          <Activity className="w-7 h-7 sm:w-8 sm:h-8 animate-pulse" />
+        <div className="mb-3">
+          <HeartbeatLogo size="lg" />
         </div>
-        <h2 className="text-2xl sm:text-3xl font-black text-navy-900 tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-black text-[#14243A] dark:text-white tracking-tight">
           ADYAPAN HOSPITAL
         </h2>
-        <p className="mt-1 text-xs sm:text-sm font-medium text-slate-500 flex items-center justify-center gap-1.5">
+        <p className="mt-1 text-xs sm:text-sm font-medium text-[#526174] dark:text-slate-400 flex items-center justify-center gap-1.5">
           <span>Queue & Appointment Management Platform</span>
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
         </p>
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-lg px-2 sm:px-0 relative z-10">
-        <div className="glass-panel bg-white/95 backdrop-blur-md py-6 px-4 shadow-2xl rounded-2xl sm:rounded-3xl sm:py-7 sm:px-9 border border-brand-200/60 relative">
-          <form className="space-y-4" onSubmit={handleSubmit}>
+        <div className="hms-card bg-[#FFFCF7]/95 dark:bg-[#0B1524]/95 backdrop-blur-md py-6 px-4 shadow-2xl rounded-2xl sm:rounded-3xl sm:py-7 sm:px-9 border border-[#E6D9C6] dark:border-navy-700 relative">
+          <form className="space-y-4" onSubmit={handleSubmit} autoComplete="off">
             {error && (
-              <div className="rounded-xl bg-rose-50 p-3.5 border border-rose-200 flex items-start space-x-3 animate-in fade-in">
-                <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
-                <div className="text-xs text-rose-800 font-medium leading-relaxed">
+              <div className="rounded-xl bg-rose-50 dark:bg-rose-950/40 p-3.5 border border-rose-200 dark:border-rose-800 flex items-start space-x-3 animate-in fade-in">
+                <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
+                <div className="text-xs text-rose-800 dark:text-rose-200 font-medium leading-relaxed">
                   {error}
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-[#14243A] dark:text-slate-200 uppercase tracking-wider mb-1">
                 Email Address
               </label>
-              <div className="relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <div className="relative rounded-lg shadow-2xs">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#526174] dark:text-slate-400 z-10">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
@@ -234,18 +233,19 @@ export const Login = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all font-medium text-slate-800"
+                  autoComplete="off"
+                  className="hms-input has-left-icon block w-full !pl-11 pr-3.5 py-2.5 font-medium relative z-0"
                   placeholder="staff@adyapan.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-[#14243A] dark:text-slate-200 uppercase tracking-wider mb-1">
                 Password
               </label>
-              <div className="relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <div className="relative rounded-lg shadow-2xs">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#526174] dark:text-slate-400 z-10">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -253,7 +253,8 @@ export const Login = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all font-mono"
+                  autoComplete="current-password"
+                  className="hms-input has-left-icon block w-full !pl-11 pr-3.5 py-2.5 font-mono relative z-0"
                   placeholder="••••••••"
                 />
               </div>
@@ -262,10 +263,10 @@ export const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center space-x-2 py-3 px-4 border border-transparent rounded-xl shadow-gold-glow text-sm font-bold text-white bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
+              className="hms-btn-primary w-full py-3 px-4 shadow-sm font-extrabold text-sm transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-5 h-5 border-2 border-[#14243A] border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <>
                   <span>Sign In to Hospital Portal</span>
@@ -275,25 +276,25 @@ export const Login = () => {
             </button>
           </form>
 
-          {/* Categorized Quick Role Sign-In Section */}
-          <div className="mt-6 pt-5 border-t border-slate-200">
+          {/* Categorized Quick Role Directory Reference Section */}
+          <div className="mt-6 pt-5 border-t border-[#E6D9C6] dark:border-navy-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
               <div className="flex items-center space-x-1.5">
-                <UserCheck className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                <span className="text-xs font-bold text-navy-900 uppercase tracking-wider">
-                  Quick Role Sign-In
+                <UserCheck className="w-4 h-4 text-[#D99A32] flex-shrink-0" />
+                <span className="text-xs font-bold text-[#14243A] dark:text-slate-200 uppercase tracking-wider">
+                  Role Directory Reference
                 </span>
               </div>
 
               {/* Tab Selector */}
-              <div className="grid grid-cols-2 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs w-full sm:w-auto">
+              <div className="grid grid-cols-2 bg-[#FFF9F0] dark:bg-navy-950 p-0.5 rounded-lg border border-[#E6D9C6] dark:border-navy-800 text-xs w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setQuickTab('doctors')}
                   className={`px-2 py-1 rounded-md font-bold transition-all text-center text-[11px] sm:text-xs truncate ${
                     quickTab === 'doctors'
-                      ? 'bg-white text-navy-900 shadow-xs'
-                      : 'text-slate-500 hover:text-slate-900'
+                      ? 'bg-[#FFFCF7] text-[#14243A] shadow-xs dark:bg-navy-800 dark:text-amber-300'
+                      : 'text-[#526174] hover:text-[#14243A] dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
                   Doctors ({doctorsList.length})
@@ -303,8 +304,8 @@ export const Login = () => {
                   onClick={() => setQuickTab('staff')}
                   className={`px-2 py-1 rounded-md font-bold transition-all text-center text-[11px] sm:text-xs truncate ${
                     quickTab === 'staff'
-                      ? 'bg-white text-navy-900 shadow-xs'
-                      : 'text-slate-500 hover:text-slate-900'
+                      ? 'bg-[#FFFCF7] text-[#14243A] shadow-xs dark:bg-navy-800 dark:text-amber-300'
+                      : 'text-[#526174] hover:text-[#14243A] dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
                   Staff Roles ({STAFF_ACCOUNTS.length})
@@ -319,11 +320,9 @@ export const Login = () => {
                   const IconComp = doc.icon;
                   const isSelected = email === doc.email;
                   return (
-                    <button
+                    <div
                       key={doc.email}
-                      type="button"
-                      onClick={() => handleQuickFill(doc.email)}
-                      className={`text-left p-2.5 rounded-xl border text-xs transition-all hover:scale-[1.01] sm:hover:scale-[1.02] interactive-card relative ${
+                      className={`text-left p-2.5 rounded-xl border text-xs transition-all relative select-text cursor-default ${
                         doc.color
                       } ${isSelected ? 'ring-2 ring-amber-500 shadow-md font-bold' : ''}`}
                     >
@@ -339,10 +338,10 @@ export const Login = () => {
                         <IconComp className="w-3.5 h-3.5 text-navy-800 flex-shrink-0" />
                         <div className="font-bold text-navy-900 truncate text-[11px]">{doc.name}</div>
                       </div>
-                      <div className="text-[10px] text-slate-500 font-mono truncate mt-0.5">
+                      <div className="text-[10px] text-slate-500 font-mono truncate mt-0.5 select-all">
                         {doc.email}
                       </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -354,11 +353,9 @@ export const Login = () => {
                 {STAFF_ACCOUNTS.map((acc) => {
                   const isSelected = email === acc.email;
                   return (
-                    <button
+                    <div
                       key={acc.email}
-                      type="button"
-                      onClick={() => handleQuickFill(acc.email)}
-                      className={`text-left p-2.5 rounded-xl border text-xs font-semibold transition-all hover:scale-[1.01] sm:hover:scale-[1.02] interactive-card ${
+                      className={`text-left p-2.5 rounded-xl border text-xs font-semibold transition-all relative select-text cursor-default ${
                         acc.color
                       } ${isSelected ? 'ring-2 ring-amber-500 shadow-md' : ''}`}
                     >
@@ -366,10 +363,10 @@ export const Login = () => {
                         <span className="font-bold text-navy-900 text-xs">{acc.role}</span>
                         <span className="text-[10px] opacity-75 font-normal">{acc.desc}</span>
                       </div>
-                      <div className="text-[10px] text-slate-500 font-mono truncate mt-0.5">
+                      <div className="text-[10px] text-slate-500 font-mono truncate mt-0.5 select-all">
                         {acc.email}
                       </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>

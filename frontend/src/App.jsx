@@ -1,35 +1,53 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Layout from './components/common/Layout';
-import Dashboard from './pages/Dashboard';
-import HealthCheck from './pages/HealthCheck';
-import Login from './pages/Login';
-import Unauthorized from './pages/Unauthorized';
-import UsersList from './pages/UsersList';
-import PatientsList from './pages/Patients/PatientsList';
-import PatientRegistration from './pages/Patients/PatientRegistration';
-import PatientDetail from './pages/Patients/PatientDetail';
-import DepartmentsList from './pages/Departments/DepartmentsList';
-import DoctorsList from './pages/Doctors/DoctorsList';
-import AppointmentsList from './pages/Appointments/AppointmentsList';
-import NotificationsList from './pages/Notifications/NotificationsList';
-import CheckInTokens from './pages/Tokens/CheckInTokens';
-import LiveQueue from './pages/Queue/LiveQueue';
-import QueueTvDisplay from './pages/Queue/QueueTvDisplay';
-import ConsultationsList from './pages/Consultations/ConsultationsList';
-import PrescriptionsList from './pages/Prescriptions/PrescriptionsList';
-import PharmacyDashboard from './pages/Pharmacy/PharmacyDashboard';
-import BillingDashboard from './pages/Billing/BillingDashboard';
-import ReportsDashboard from './pages/Reports/ReportsDashboard';
-import NotFound from './pages/NotFound';
 import Home from './pages/Home';
+
+// Eagerly loaded public authentication page
+import Login from './pages/Login';
+
+// Dynamic code-splitting for secondary, administrative, and clinical modules
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const HealthCheck = lazy(() => import('./pages/HealthCheck'));
+const Unauthorized = lazy(() => import('./pages/Unauthorized'));
+const UsersList = lazy(() => import('./pages/UsersList'));
+const PatientsList = lazy(() => import('./pages/Patients/PatientsList'));
+const PatientRegistration = lazy(() => import('./pages/Patients/PatientRegistration'));
+const PatientDetail = lazy(() => import('./pages/Patients/PatientDetail'));
+const DepartmentsList = lazy(() => import('./pages/Departments/DepartmentsList'));
+const DoctorsList = lazy(() => import('./pages/Doctors/DoctorsList'));
+const AppointmentsList = lazy(() => import('./pages/Appointments/AppointmentsList'));
+const NotificationsList = lazy(() => import('./pages/Notifications/NotificationsList'));
+const CheckInTokens = lazy(() => import('./pages/Tokens/CheckInTokens'));
+const LiveQueue = lazy(() => import('./pages/Queue/LiveQueue'));
+const QueueTvDisplay = lazy(() => import('./pages/Queue/QueueTvDisplay'));
+const ConsultationsList = lazy(() => import('./pages/Consultations/ConsultationsList'));
+const PrescriptionsList = lazy(() => import('./pages/Prescriptions/PrescriptionsList'));
+const PharmacyDashboard = lazy(() => import('./pages/Pharmacy/PharmacyDashboard'));
+const BillingDashboard = lazy(() => import('./pages/Billing/BillingDashboard'));
+const ReportsDashboard = lazy(() => import('./pages/Reports/ReportsDashboard'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+
+function PageLoadingFallback() {
+  return (
+    <div className="min-h-[50vh] flex items-center justify-center p-8">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-3 border-amber-500/20 border-t-amber-600 rounded-full animate-spin" />
+        <span className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Loading module...</span>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   return (
-    <AuthProvider>
-      <Routes>
+    <ThemeProvider>
+      <AuthProvider>
+        <Suspense fallback={<PageLoadingFallback />}>
+        <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -300,8 +318,10 @@ function App() {
 
           <Route path="*" element={<NotFound />} />
         </Route>
-      </Routes>
-    </AuthProvider>
+        </Routes>
+      </Suspense>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

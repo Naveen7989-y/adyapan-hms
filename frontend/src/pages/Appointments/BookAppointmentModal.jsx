@@ -110,21 +110,21 @@ export const BookAppointmentModal = ({ onClose, onBooked }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+    <div className="hms-modal-backdrop">
+      <div className="bg-[#FFFCF7] dark:bg-[#0B1524] rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-[#E6D9C6] dark:border-[#1E293B] text-[#14243A] dark:text-[#F8FAFC] max-h-[92vh] flex flex-col">
+        <div className="flex items-center justify-between pb-4 border-b border-[#E6D9C6] dark:border-[#1E293B]">
           <div>
-            <h3 className="text-lg font-bold text-slate-800 flex items-center space-x-2">
-              <Calendar className="w-5 h-5 text-sky-600" />
+            <h3 className="text-lg font-bold text-[#14243A] dark:text-[#F8FAFC] flex items-center space-x-2">
+              <Calendar className="w-5 h-5 text-[#D99A32]" />
               <span>Book OPD Patient Appointment</span>
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-[#526174] dark:text-[#94A3B8] mt-0.5">
               Select patient, physician, date, and reserve an available consultation slot.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
+            className="p-2 text-[#526174] dark:text-slate-400 hover:text-[#14243A] dark:hover:text-white rounded-lg hover:bg-[#FFF9F0] dark:hover:bg-[#070D18]"
           >
             <X className="w-5 h-5" />
           </button>
@@ -292,18 +292,18 @@ export const BookAppointmentModal = ({ onClose, onBooked }) => {
             />
           </div>
 
-          <div className="pt-4 border-t border-slate-200 flex justify-end space-x-3">
+          <div className="pt-4 border-t border-[#E6D9C6] dark:border-[#1E293B] flex justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100"
+              className="hms-btn-secondary"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting || !selectedSlot || !selectedPatient}
-              className="px-5 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-sm font-semibold disabled:opacity-50 shadow-sm"
+              className="hms-btn-primary disabled:opacity-50"
             >
               {submitting ? 'Confirming...' : 'Confirm Appointment'}
             </button>

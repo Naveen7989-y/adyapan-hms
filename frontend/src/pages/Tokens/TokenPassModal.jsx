@@ -42,9 +42,11 @@ export default function TokenPassModal({ token, onClose }) {
         <div ref={printRef} className="p-6 space-y-5 print:p-8">
           {/* Hospital Brand Header */}
           <div className="text-center border-b border-dashed border-slate-200 pb-4">
-            <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-brand-600 text-white font-bold text-lg mb-2 shadow-sm shadow-brand-500/30">
-              A
-            </div>
+            <img
+              src="/adyapan-logo.png"
+              alt="Adyapan Hospital Logo"
+              className="w-12 h-12 rounded-full mx-auto mb-2 object-contain shadow-sm filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.25)]"
+            />
             <h2 className="text-lg font-bold text-slate-900 tracking-tight">ADYAPAN HOSPITAL</h2>
             <p className="text-xs text-slate-500">Outpatient Queue & Token System</p>
           </div>

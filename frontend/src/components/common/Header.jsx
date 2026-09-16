@@ -1,6 +1,8 @@
 import React from 'react';
-import { Activity, Bell, UserCircle, LogOut, Menu } from 'lucide-react';
+import { Bell, UserCircle, LogOut, Menu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import HeartbeatLogo from './HeartbeatLogo';
+import ThemeToggle from './ThemeToggle';
 
 export const Header = ({ onOpenMobileMenu }) => {
   const { user, logout } = useAuth();
@@ -27,28 +29,26 @@ export const Header = ({ onOpenMobileMenu }) => {
   };
 
   return (
-    <header className="h-16 glass-panel border-b border-slate-200/80 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm neon-border-gold">
+    <header className="h-16 bg-[#FFF9F0]/95 dark:bg-[#070D18]/90 backdrop-blur-md border-b border-[#E6D9C6] dark:border-navy-800 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs transition-colors duration-300">
       <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
         {/* Mobile menu toggle */}
         <button
           type="button"
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-2 -ml-1 text-slate-600 hover:text-navy-900 rounded-xl hover:bg-slate-100/80 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+          className="lg:hidden p-2 -ml-1 text-[#526174] dark:text-slate-300 hover:text-[#14243A] dark:hover:text-white rounded-xl hover:bg-[#FFFCF7] dark:hover:bg-navy-800 transition-colors focus:outline-none focus:ring-2 focus:ring-[#D99A32]/30"
           title="Open Navigation Menu"
           aria-label="Open Navigation Menu"
         >
           <Menu className="w-5 h-5" />
         </button>
 
-        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-500 to-amber-400 flex items-center justify-center text-white shadow-gold animate-float flex-shrink-0">
-          <Activity className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
-        </div>
+        <HeartbeatLogo size="sm" />
         <div className="min-w-0">
           <div className="flex items-center space-x-2">
-            <h1 className="text-sm sm:text-base font-black text-navy-900 tracking-tight leading-tight truncate">
+            <h1 className="text-sm sm:text-base font-black text-[#14243A] dark:text-white tracking-tight leading-tight truncate">
               ADYAPAN HOSPITAL
             </h1>
-            <span className="hidden sm:inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-[10px] font-bold text-emerald-700 font-mono flex-shrink-0">
+            <span className="hidden sm:inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 font-mono flex-shrink-0">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -56,28 +56,31 @@ export const Header = ({ onOpenMobileMenu }) => {
               <span>LIVE HUD</span>
             </span>
           </div>
-          <p className="text-[10px] sm:text-[11px] font-medium text-slate-500 truncate max-w-[130px] sm:max-w-none">
+          <p className="text-[10px] sm:text-[11px] font-medium text-[#526174] dark:text-slate-400 truncate max-w-[130px] sm:max-w-none">
             {user?.hospital?.name || 'Central Hospital & Clinic'}
           </p>
         </div>
       </div>
 
-      <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+      <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+        {/* Theme Toggle Button */}
+        <ThemeToggle size="sm" />
+
         <button
           type="button"
-          className="p-1.5 sm:p-2 text-slate-400 hover:text-navy-900 rounded-full hover:bg-beige-100/80 transition-all duration-200 relative group"
+          className="p-1.5 sm:p-2 text-[#526174] hover:text-[#14243A] dark:text-slate-400 dark:hover:text-amber-300 rounded-full hover:bg-[#FFFCF7] dark:hover:bg-navy-800 transition-all duration-200 relative group"
           title="Notifications"
         >
-          <Bell className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
-          <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-amber-500 absolute top-1 right-1 sm:top-1.5 sm:right-1.5 ring-2 ring-white animate-ping"></span>
-          <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-amber-500 absolute top-1 right-1 sm:top-1.5 sm:right-1.5 ring-2 ring-white"></span>
+          <Bell className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform text-[#526174] dark:text-slate-400" />
+          <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-[#D99A32] absolute top-1 right-1 sm:top-1.5 sm:right-1.5 ring-2 ring-[#FFF9F0] dark:ring-navy-900 animate-ping"></span>
+          <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-[#D99A32] absolute top-1 right-1 sm:top-1.5 sm:right-1.5 ring-2 ring-[#FFF9F0] dark:ring-navy-900"></span>
         </button>
 
-        <div className="h-5 sm:h-6 w-px bg-slate-200 hidden xs:block" />
+        <div className="h-5 sm:h-6 w-px bg-[#E6D9C6] dark:bg-navy-800 hidden xs:block" />
 
         <div className="flex items-center space-x-2 sm:space-x-3">
           <div className="text-right hidden sm:block">
-            <div className="text-sm font-bold text-navy-900 leading-tight">
+            <div className="text-sm font-bold text-[#14243A] dark:text-white leading-tight">
               {user?.name || 'Staff User'}
             </div>
             <div className="mt-0.5">
@@ -91,8 +94,8 @@ export const Header = ({ onOpenMobileMenu }) => {
             </div>
           </div>
           <div className="relative">
-            <UserCircle className="w-7 h-7 sm:w-8 sm:h-8 text-slate-400" />
-            <span className="absolute bottom-0 right-0 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+            <UserCircle className="w-7 h-7 sm:w-8 sm:h-8 text-[#526174] dark:text-slate-400" />
+            <span className="absolute bottom-0 right-0 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#FFF9F0] dark:ring-navy-900"></span>
           </div>
 
           <button

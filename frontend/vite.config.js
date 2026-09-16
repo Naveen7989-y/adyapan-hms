@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
+// Trigger config reload for tailwind darkMode class
 export default defineConfig({
   plugins: [react()],
   server: {

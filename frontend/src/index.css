@@ -4,23 +4,404 @@
 
 :root {
   color-scheme: light;
-  --color-gold-amber: #C68A0C;
+  /* Brand Color Palette Specification */
+  --color-primary-bg: #F7F1E7;       /* Warm beige / soft ivory */
+  --color-secondary-bg: #FFF9F0;     /* Light cream */
+  --color-primary-text: #14243A;     /* Deep navy */
+  --color-secondary-text: #526174;   /* Muted navy */
+  --color-primary-accent: #D99A32;   /* Golden amber */
+  --color-hover-accent: #B97B20;     /* Rich amber */
+  --color-borders: #E6D9C6;          /* Soft beige */
+  --color-cards: #FFFCF7;            /* Warm off-white */
+
+  /* Legacy & Helper tokens */
+  --color-gold-amber: #D99A32;
   --color-gold-amber-light: #F9D054;
-  --color-deep-navy: #0B1524;
+  --color-deep-navy: #14243A;
   --color-deep-navy-dark: #070D18;
-  --color-warm-beige: #FAF8F5;
-  --color-warm-beige-border: #E8DFD5;
-  --color-pure-white: #FFFFFF;
+  --color-warm-beige: #F7F1E7;
+  --color-warm-beige-border: #E6D9C6;
+  --color-pure-white: #FFFCF7;
+}
+
+html.dark {
+  color-scheme: dark;
+  --color-primary-bg: #070D18;
+  --color-secondary-bg: #0B1524;
+  --color-primary-text: #F8FAFC;
+  --color-secondary-text: #94A3B8;
+  --color-primary-accent: #D99A32;
+  --color-hover-accent: #B97B20;
+  --color-borders: #1E293B;
+  --color-cards: #0B1524;
+
+  --color-gold-amber: #F9D054;
+  --color-gold-amber-light: #FDE047;
+  --color-deep-navy: #F8FAFC;
+  --color-deep-navy-dark: #FFFFFF;
+  --color-warm-beige: #070D18;
+  --color-warm-beige-border: #1E293B;
+  --color-pure-white: #0B1524;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: var(--color-warm-beige);
-  color: var(--color-deep-navy);
+  background-color: #F7F1E7;
+  color: #14243A;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark body {
+  background-color: #070D18;
+  color: #F8FAFC;
+}
+
+/* ==========================================================================
+   PROJECT-WIDE BRAND THEME SYSTEM CLASSES & SAFETY NETS
+   ========================================================================== */
+
+/* Universal Brand Cards & Panels */
+.hms-card {
+  background-color: #FFFCF7;
+  border: 1px solid #E6D9C6;
+  color: #14243A;
+  border-radius: 1rem;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+html.dark .hms-card {
+  background-color: #0B1524;
+  border-color: #1E293B;
+  color: #F8FAFC;
+}
+
+.hms-card-elevated {
+  background-color: #FFF9F0;
+  border: 1px solid #E6D9C6;
+  color: #14243A;
+  border-radius: 1rem;
+}
+html.dark .hms-card-elevated {
+  background-color: #070D18;
+  border-color: #1E293B;
+  color: #F8FAFC;
+}
+
+/* Universal Brand Form Inputs & Selects */
+.hms-input {
+  background-color: #FFF9F0;
+  border: 1px solid #E6D9C6;
+  color: #14243A;
+  border-radius: 0.75rem;
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+  padding-left: 0.875rem;
+  padding-right: 0.875rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+.hms-input[class*="pl-8"],
+.hms-input[class*="pl-9"],
+.hms-input[class*="pl-10"],
+.hms-input[class*="pl-11"],
+.hms-input[class*="pl-12"],
+.hms-input.has-left-icon {
+  padding-left: 2.75rem !important;
+}
+.hms-input::placeholder {
+  color: #526174;
+  opacity: 0.7;
+}
+.hms-input:focus {
+  outline: none;
+  border-color: #D99A32;
+  box-shadow: 0 0 0 2px rgba(217, 154, 50, 0.25);
+}
+html.dark .hms-input {
+  background-color: #070D18;
+  border-color: #1E293B;
+  color: #F8FAFC;
+}
+html.dark .hms-input::placeholder {
+  color: #64748B;
+}
+html.dark .hms-input:focus {
+  border-color: #F9D054;
+  box-shadow: 0 0 0 2px rgba(249, 208, 84, 0.25);
+}
+
+/* Universal Brand Buttons */
+.hms-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #D99A32;
+  color: #14243A !important;
+  font-weight: 800;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  border: 1px solid rgba(185, 123, 32, 0.3);
+  box-shadow: 0 2px 6px 0 rgba(217, 154, 50, 0.2);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.hms-btn-primary:hover {
+  background-color: #B97B20;
+  box-shadow: 0 4px 12px 0 rgba(185, 123, 32, 0.3);
+  transform: translateY(-1px);
+}
+.hms-btn-primary:active {
+  transform: translateY(0);
+}
+html.dark .hms-btn-primary {
+  background: linear-gradient(135deg, #E5A919, #C68A0C);
+  color: #070D18 !important;
+  border-color: #F9D054;
+  box-shadow: 0 0 15px rgba(249, 208, 84, 0.3);
+}
+
+.hms-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #FFF9F0;
+  color: #14243A;
+  font-weight: 700;
+  border: 1.5px solid #14243A;
+  border-radius: 0.75rem;
+  padding: 0.55rem 1.2rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.hms-btn-secondary:hover {
+  background-color: #FFFCF7;
+  border-color: #D99A32;
+  color: #B97B20;
+}
+html.dark .hms-btn-secondary {
+  background-color: #0B1524;
+  color: #F8FAFC;
+  border: 1px solid #1E293B;
+}
+html.dark .hms-btn-secondary:hover {
+  background-color: #102030;
+  border-color: #F9D054;
+  color: #F9D054;
+}
+
+/* Modals Backdrop & Card */
+.hms-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background-color: rgba(7, 13, 24, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* Global Safe Theme Overrides:
+   Ensures any legacy Tailwind utility classes across all 60+ components
+   seamlessly follow the warm beige light theme and deep navy dark theme. */
+.bg-white,
+[class*="bg-white/"] {
+  background-color: #FFFCF7;
+}
+.border-slate-200,
+.border-slate-300,
+.border-slate-100,
+[class*="border-slate-200/"],
+[class*="border-slate-100/"] {
+  border-color: #E6D9C6;
+}
+.text-slate-900, .text-slate-800 {
+  color: #14243A;
+}
+.text-slate-500, .text-slate-600 {
+  color: #526174;
+}
+.bg-slate-50, .bg-slate-100, [class*="bg-slate-50/"], [class*="bg-slate-100/"] {
+  background-color: #FFF9F0;
+}
+
+html.dark .bg-white,
+html.dark [class*="bg-white/"] {
+  background-color: #0B1524 !important;
+}
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-slate-100,
+html.dark [class*="border-slate-200/"],
+html.dark [class*="border-slate-100/"] {
+  border-color: #1E293B !important;
+}
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-slate-700 {
+  color: #F8FAFC !important;
+}
+html.dark .text-slate-500,
+html.dark .text-slate-600,
+html.dark .text-slate-400 {
+  color: #94A3B8 !important;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100,
+html.dark [class*="bg-slate-50/"],
+html.dark [class*="bg-slate-100/"] {
+  background-color: #070D18 !important;
+}
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1E293B !important;
+}
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea {
+  background-color: #070D18 !important;
+  color: #F8FAFC !important;
+  border-color: #1E293B !important;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748B !important;
+}
+
+/* Table Rows & Interactive Item Hover */
+[class*="hover:bg-slate-50"]:hover,
+[class*="hover:bg-slate-100"]:hover {
+  background-color: #F7F1E7 !important;
+}
+html.dark [class*="hover:bg-slate-50"]:hover,
+html.dark [class*="hover:bg-slate-100"]:hover {
+  background-color: #102030 !important;
+}
+
+/* Status Badges, Pills & Icon Bubble Safety Nets in Dark Mode */
+html.dark .bg-brand-50,
+html.dark [class*="bg-brand-50/"] {
+  background-color: rgba(217, 154, 50, 0.15) !important;
+}
+html.dark .bg-brand-100,
+html.dark [class*="bg-brand-100/"] {
+  background-color: rgba(217, 154, 50, 0.22) !important;
+}
+html.dark .border-brand-200 {
+  border-color: rgba(217, 154, 50, 0.35) !important;
+}
+html.dark .text-brand-800,
+html.dark .text-brand-700,
+html.dark .text-brand-600 {
+  color: #F9D054 !important;
+}
+
+html.dark .bg-amber-50,
+html.dark [class*="bg-amber-50/"] {
+  background-color: rgba(217, 154, 50, 0.15) !important;
+}
+html.dark .bg-amber-100,
+html.dark [class*="bg-amber-100/"] {
+  background-color: rgba(217, 154, 50, 0.22) !important;
+}
+html.dark .border-amber-200 {
+  border-color: rgba(217, 154, 50, 0.35) !important;
+}
+html.dark .text-amber-800,
+html.dark .text-amber-700,
+html.dark .text-amber-600 {
+  color: #F9D054 !important;
+}
+
+html.dark .bg-emerald-50,
+html.dark [class*="bg-emerald-50/"] {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+html.dark .bg-emerald-100,
+html.dark [class*="bg-emerald-100/"] {
+  background-color: rgba(16, 185, 129, 0.22) !important;
+}
+html.dark .border-emerald-200 {
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+html.dark .text-emerald-800,
+html.dark .text-emerald-700 {
+  color: #34D399 !important;
+}
+
+html.dark .bg-indigo-50,
+html.dark [class*="bg-indigo-50/"] {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+}
+html.dark .bg-indigo-100,
+html.dark [class*="bg-indigo-100/"] {
+  background-color: rgba(99, 102, 241, 0.22) !important;
+}
+html.dark .border-indigo-200 {
+  border-color: rgba(99, 102, 241, 0.35) !important;
+}
+html.dark .text-indigo-800,
+html.dark .text-indigo-700,
+html.dark .text-indigo-600 {
+  color: #A5B4FC !important;
+}
+
+html.dark .bg-purple-50,
+html.dark [class*="bg-purple-50/"] {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+}
+html.dark .bg-purple-100,
+html.dark [class*="bg-purple-100/"] {
+  background-color: rgba(168, 85, 247, 0.22) !important;
+}
+html.dark .border-purple-200 {
+  border-color: rgba(168, 85, 247, 0.35) !important;
+}
+html.dark .text-purple-800,
+html.dark .text-purple-700 {
+  color: #C084FC !important;
+}
+
+html.dark .bg-blue-50,
+html.dark [class*="bg-blue-50/"] {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+}
+html.dark .bg-blue-100,
+html.dark [class*="bg-blue-100/"] {
+  background-color: rgba(59, 130, 246, 0.22) !important;
+}
+html.dark .border-blue-200 {
+  border-color: rgba(59, 130, 246, 0.35) !important;
+}
+html.dark .text-blue-800,
+html.dark .text-blue-700,
+html.dark .text-blue-600 {
+  color: #93C5FD !important;
+}
+
+html.dark .bg-rose-50,
+html.dark [class*="bg-rose-50/"] {
+  background-color: rgba(244, 63, 94, 0.15) !important;
+}
+html.dark .bg-rose-100,
+html.dark [class*="bg-rose-100/"] {
+  background-color: rgba(244, 63, 94, 0.22) !important;
+}
+html.dark .border-rose-200 {
+  border-color: rgba(244, 63, 94, 0.35) !important;
+}
+html.dark .text-rose-800,
+html.dark .text-rose-700 {
+  color: #FDA4AF !important;
 }
 
 /* Warm Beige & Deep Navy Custom Scrollbars */
@@ -29,26 +410,47 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #F4EFEA;
+  background: #F7F1E7;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D8CCC0;
+  background: #E6D9C6;
   border-radius: 9999px;
-  border: 2px solid #F4EFEA;
+  border: 2px solid #F7F1E7;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #C2B4A3;
+  background: #D99A32;
+}
+
+html.dark ::-webkit-scrollbar-track {
+  background: #070D18;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border: 2px solid #070D18;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #334155;
 }
 
 /* Gold Amber text selection */
 ::selection {
-  background-color: #FDF0C6;
-  color: #5C3B07;
+  background-color: #E6D9C6;
+  color: #14243A;
+}
+
+html.dark ::selection {
+  background-color: #7A5007;
+  color: #FEF9E7;
 }
 
 /* Futuristic Cyber Grid Background */
 .bg-cyber-grid {
-  background-image: radial-gradient(rgba(198, 138, 12, 0.08) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(217, 154, 50, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+html.dark .bg-cyber-grid {
+  background-image: radial-gradient(rgba(249, 208, 84, 0.07) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
@@ -59,10 +461,16 @@ body {
 
 /* Futuristic Glassmorphism Panels */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 252, 247, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(232, 223, 213, 0.9);
+  border: 1px solid rgba(230, 217, 198, 0.95);
+}
+
+html.dark .glass-panel {
+  background: rgba(11, 21, 36, 0.88);
+  border: 1px solid rgba(30, 41, 59, 0.85);
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.4);
 }
 
 .glass-panel-dark {
@@ -115,6 +523,767 @@ body {
   display: inline-block;
   white-space: nowrap;
   animation: marquee 30s linear infinite;
+}
+
+/* Real Medical ECG Heartbeat Continuous Flow & Cardiac Rhythm Animations */
+@keyframes continuousHeartbeatPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(198, 138, 12, 0.4));
+  }
+  14% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 20px rgba(249, 208, 84, 0.8));
+  }
+  28% {
+    transform: scale(1.01);
+  }
+  42% {
+    transform: scale(1.09);
+    filter: drop-shadow(0 0 26px rgba(249, 208, 84, 0.9));
+  }
+  60% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(198, 138, 12, 0.4));
+  }
+}
+
+.animate-continuous-heartbeat {
+  animation: continuousHeartbeatPulse 1.3s ease-in-out infinite;
+  will-change: transform, filter;
+}
+
+@keyframes heartbeatRhythm {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 12px rgba(229, 169, 25, 0.45));
+  }
+  14% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 24px rgba(249, 208, 84, 0.85));
+  }
+  28% {
+    transform: scale(1.02);
+  }
+  42% {
+    transform: scale(1.14);
+    filter: drop-shadow(0 0 30px rgba(249, 208, 84, 0.95));
+  }
+  58% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 12px rgba(229, 169, 25, 0.45));
+  }
+}
+
+@keyframes ecgStrokeSweep {
+  0% {
+    stroke-dasharray: 25 140;
+    stroke-dashoffset: 140;
+    opacity: 0.3;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    stroke-dasharray: 45 140;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dasharray: 25 140;
+    stroke-dashoffset: -140;
+    opacity: 0.3;
+  }
+}
+
+.animate-ecg-stroke {
+  animation: ecgStrokeSweep 1.8s ease-in-out infinite;
+}
+
+/* Dynamic Cursor Interactive Spotlight Effect */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mouse-x, -999px) var(--mouse-y, -999px), rgba(229, 169, 25, 0.16), transparent 75%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+}
+
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+.spotlight-card-dark {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+
+.spotlight-card-dark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mouse-x, -999px) var(--mouse-y, -999px), rgba(249, 208, 84, 0.18), transparent 75%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+}
+
+.spotlight-card-dark:hover::before {
+  opacity: 1;
+}
+
+/* 3D Perspective Card Tilt */
+.tilt-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Enhanced Dynamic Spotlight Border Glow */
+.spotlight-card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    280px circle at var(--mouse-x, -999px) var(--mouse-y, -999px),
+    rgba(245, 158, 11, 0.55),
+    transparent 65%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: 2;
+}
+
+.spotlight-card:hover::after {
+  opacity: 1;
+}
+
+.spotlight-card-dark::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: radial-gradient(
+    320px circle at var(--mouse-x, -999px) var(--mouse-y, -999px),
+    rgba(251, 191, 36, 0.7),
+    transparent 65%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: 2;
+}
+
+.spotlight-card-dark:hover::after {
+  opacity: 1;
+}
+
+/* Atmospheric Biometric Breathing Aura */
+@keyframes breathingAura {
+  0%, 100% {
+    transform: scale3d(1, 1, 1);
+    opacity: 0.14;
+  }
+  50% {
+    transform: scale3d(1.16, 1.16, 1);
+    opacity: 0.28;
+  }
+}
+
+.animate-breathing-aura {
+  animation: breathingAura 6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Luminous Button Shimmer Sweep */
+@keyframes shimmerLight {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  25%, 100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.32),
+    transparent
+  );
+  animation: shimmerLight 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+/* Magnetic Button Smooth Transition */
+.magnetic-btn {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  will-change: transform;
+}
+
+/* ==========================================================================
+   FUTURISTIC SCI-FI & MEDICAL TELEMETRY ANIMATIONS
+   ========================================================================== */
+
+/* 1. Holographic Laser Telemetry Scanline */
+@keyframes cyberScanline {
+  0% {
+    top: -5%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    top: 105%;
+    opacity: 0;
+  }
+}
+
+.cyber-scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(245, 158, 11, 0.4) 15%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(245, 158, 11, 0.4) 85%,
+    transparent 100%
+  );
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.8), 0 0 24px rgba(245, 158, 11, 0.4);
+  animation: cyberScanline 3.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* 2. Futuristic Holographic HUD Corner Brackets */
+.hud-corners {
+  position: relative;
+}
+
+.hud-corners::before,
+.hud-corners::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  z-index: 15;
+  transition: all 0.3s ease;
+}
+
+.hud-corners::before {
+  top: 10px;
+  left: 10px;
+  border-top: 2px solid rgba(245, 158, 11, 0.85);
+  border-left: 2px solid rgba(245, 158, 11, 0.85);
+}
+
+.hud-corners::after {
+  bottom: 10px;
+  right: 10px;
+  border-bottom: 2px solid rgba(245, 158, 11, 0.85);
+  border-right: 2px solid rgba(245, 158, 11, 0.85);
+}
+
+.hud-corners:hover::before {
+  transform: translate(-3px, -3px);
+  border-color: rgba(251, 191, 36, 1);
+  box-shadow: -2px -2px 10px rgba(245, 158, 11, 0.6);
+}
+
+.hud-corners:hover::after {
+  transform: translate(3px, 3px);
+  border-color: rgba(251, 191, 36, 1);
+  box-shadow: 2px 2px 10px rgba(245, 158, 11, 0.6);
+}
+
+/* 3. Cyber Perimeter Border Light Flow */
+@keyframes cyberBorderSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.cyber-border-flow {
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-border-flow::before {
+  content: '';
+  position: absolute;
+  inset: -150%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(245, 158, 11, 0.85) 60deg,
+    transparent 120deg,
+    transparent 180deg,
+    rgba(56, 189, 248, 0.85) 240deg,
+    transparent 300deg,
+    transparent 360deg
+  );
+  animation: cyberBorderSpin 5s linear infinite;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 0;
+}
+
+.cyber-border-flow:hover::before {
+  opacity: 1;
+}
+
+/* 4. Iridescent Holographic Prism Badge */
+@keyframes holoPrism {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.holographic-badge {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.16),
+    rgba(56, 189, 248, 0.16),
+    rgba(168, 85, 247, 0.16),
+    rgba(245, 158, 11, 0.16)
+  );
+  background-size: 300% 300%;
+  animation: holoPrism 6s ease infinite;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+/* 5. Biometric Pulse Ring */
+@keyframes biometricPing {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+  }
+}
+
+.animate-biometric-pulse {
+  animation: biometricPing 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Ripple Glow on Interactive Badges */
+@keyframes rippleWave {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(229, 169, 25, 0.5);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 12px rgba(229, 169, 25, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(229, 169, 25, 0);
+  }
+}
+
+.animate-ripple {
+  animation: rippleWave 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth Floating Popup HUD Animation */
+@keyframes hudFloatIn {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0px);
+  }
+}
+
+.animate-hud-popup {
+  animation: hudFloatIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ==========================================================================
+   SCROLL-TRIGGERED REVEAL ANIMATIONS (IntersectionObserver & Progressive CSS)
+   ========================================================================== */
+.scroll-reveal {
+  opacity: 0;
+  transform: translate3d(0, 32px, 0);
+  filter: blur(4px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+
+.scroll-reveal-scale {
+  opacity: 0;
+  transform: scale3d(0.94, 0.94, 1) translate3d(0, 20px, 0);
+  filter: blur(4px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+
+.scroll-reveal-left {
+  opacity: 0;
+  transform: translate3d(-35px, 0, 0);
+  filter: blur(4px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+
+.scroll-reveal-right {
+  opacity: 0;
+  transform: translate3d(35px, 0, 0);
+  filter: blur(4px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+
+/* Specialized Medical Departments 3D Perspective Unfurl on Scroll */
+.scroll-department-card {
+  opacity: 0;
+  transform: perspective(1000px) rotateX(14deg) translateY(42px) scale3d(0.93, 0.93, 1);
+  filter: blur(5px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.4s ease,
+              border-color 0.4s ease;
+  will-change: opacity, transform, filter;
+}
+
+/* Department Badge & Icon Scroll Pop */
+.scroll-icon-pop {
+  transform: scale(0.65) rotate(-12deg);
+  opacity: 0;
+  transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
+}
+
+.is-revealed .scroll-icon-pop {
+  transform: scale(1) rotate(0deg);
+  opacity: 1;
+}
+
+/* Sheen Light Sweep on Scroll Entry */
+@keyframes deptCardSheen {
+  0% {
+    opacity: 0;
+    transform: translateX(-120%) skewX(-25deg);
+  }
+  40% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(250%) skewX(-25deg);
+  }
+}
+
+.is-revealed .animate-sheen-entry {
+  animation: deptCardSheen 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+/* Active State when triggered into view */
+.scroll-reveal.is-revealed,
+.scroll-reveal-scale.is-revealed,
+.scroll-reveal-left.is-revealed,
+.scroll-reveal-right.is-revealed,
+.scroll-department-card.is-revealed {
+  opacity: 1 !important;
+  transform: perspective(1000px) rotateX(0deg) translateY(0) scale3d(1, 1, 1) !important;
+  filter: blur(0px) !important;
+}
+
+/* Progressive enhancement with CSS scroll-driven animations */
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    @keyframes scrollFadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 36px, 0);
+        filter: blur(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+        filter: blur(0px);
+      }
+    }
+
+    .scroll-driven-entry {
+      animation: scrollFadeSlideUp linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+  }
+}
+
+/* Hero Reload Entrance: Staggered Fallen & Combined Animations */
+@keyframes heroFallDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.94);
+    filter: blur(8px);
+  }
+  60% {
+    opacity: 0.95;
+    transform: translateY(4px) scale(1.01);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes heroCombineLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-70px) translateY(-35px) scale(0.92);
+    filter: blur(6px);
+  }
+  65% {
+    opacity: 0.95;
+    transform: translateX(4px) translateY(2px) scale(1.01);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes heroCombineRight {
+  0% {
+    opacity: 0;
+    transform: translateX(70px) translateY(-35px) scale(0.92);
+    filter: blur(8px);
+  }
+  65% {
+    opacity: 0.95;
+    transform: translateX(-4px) translateY(2px) scale(1.01);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes heroAssembleCard {
+  0% {
+    opacity: 0;
+    transform: translateY(-70px) scale(0.88) rotate(-1.5deg);
+    filter: blur(10px);
+  }
+  65% {
+    opacity: 0.95;
+    transform: translateY(6px) scale(1.02) rotate(0.5deg);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+    filter: blur(0px);
+  }
+}
+
+@keyframes heroMetricsRise {
+  0% {
+    opacity: 0;
+    transform: translateY(45px) scale(0.92);
+    filter: blur(6px);
+  }
+  70% {
+    opacity: 0.95;
+    transform: translateY(-3px) scale(1.01);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+.animate-hero-fall {
+  animation: heroFallDown 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-hero-left {
+  animation: heroCombineLeft 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-hero-right {
+  animation: heroCombineRight 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-hero-card {
+  animation: heroAssembleCard 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-hero-rise {
+  animation: heroMetricsRise 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Dr. Junior 3D Hospital Mascot Walking Infinity Action */
+@keyframes juniorPatrolWalk {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  43.5% {
+    transform: translate3d(min(270px, 34vw), 0, 0);
+  }
+  49.5% {
+    transform: translate3d(min(270px, 34vw), 0, 0);
+  }
+  93.5% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Smooth 3D Pivot Turnaround at the Patrol Ends (fluid turnaround, no snapping flip) */
+@keyframes juniorSmoothTurn {
+  0%, 43.5% {
+    transform: scale3d(1, 1, 1);
+  }
+  46.5% {
+    transform: scale3d(0.08, 1, 1);
+  }
+  49.5%, 93.5% {
+    transform: scale3d(-1, 1, 1);
+  }
+  96.5% {
+    transform: scale3d(-0.08, 1, 1);
+  }
+  99.5%, 100% {
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+/* Buttery-Smooth Child Walking Stride (Gentle springy bounce & subtle weight shift) */
+@keyframes juniorSmoothGait {
+  0% {
+    transform: translate3d(0, 0px, 0) rotate(-1.5deg);
+  }
+  25% {
+    transform: translate3d(0, -6px, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(0, 0px, 0) rotate(1.5deg);
+  }
+  75% {
+    transform: translate3d(0, -6px, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(0, 0px, 0) rotate(-1.5deg);
+  }
+}
+
+/* Smooth Ground Contact Shadow Pulsing with Stride */
+@keyframes juniorSmoothShadow {
+  0%, 50%, 100% {
+    transform: scale3d(1.08, 0.8, 1);
+    opacity: 0.32;
+  }
+  25%, 75% {
+    transform: scale3d(0.85, 0.6, 1);
+    opacity: 0.18;
+  }
+}
+
+.animate-junior-patrol {
+  animation: juniorPatrolWalk 20s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+.animate-junior-facing {
+  animation: juniorSmoothTurn 20s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-junior-stride {
+  animation: juniorSmoothGait 2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-junior-shadow {
+  animation: juniorSmoothShadow 2s ease-in-out infinite;
+  will-change: transform;
 }
 
 /* Accessibility: Respect Reduced Motion Preferences in Production */
