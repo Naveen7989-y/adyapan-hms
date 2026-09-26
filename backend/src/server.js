@@ -2,6 +2,7 @@ import http from 'http';
 import app from './app.js';
 import { config } from './config/env.js';
 import { initSocketIO } from './modules/realtime/socket.service.js';
+import { expirePastDayAppointments } from './modules/appointments/appointment.service.js';
 
 const allowedOrigins = config.frontendUrl && config.frontendUrl.includes(',')
   ? config.frontendUrl.split(',').map((o) => o.trim())
@@ -20,6 +21,18 @@ server.listen(config.port, () => {
   console.log(` Health check: http://localhost:${config.port}/api/health`);
   console.log(` Socket.IO: Real-Time Engine Active`);
   console.log(`===================================================`);
+
+  // Run day-change auto-expiration immediately on start
+  expirePastDayAppointments().catch((err) =>
+    console.error('Initial auto-expire failed:', err.message)
+  );
+
+  // Set recurring check every 10 minutes to auto-expire when date rolls over to midnight
+  setInterval(() => {
+    expirePastDayAppointments().catch((err) =>
+      console.error('Periodic auto-expire failed:', err.message)
+    );
+  }, 10 * 60 * 1000);
 });
 
 process.on('SIGTERM', () => {

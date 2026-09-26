@@ -553,3 +553,156 @@ export const getPublicDisplayData = async (hospitalId, { departmentId } = {}) =>
       : null,
   };
 };
+
+/**
+ * 6. Public Patient Token Tracking (Direct Database Query by Token # or UHID)
+ */
+export const trackTokenData = async (hospitalId, searchTerm) => {
+  let resolvedHospitalId = hospitalId;
+  if (!resolvedHospitalId) {
+    const primaryHospital = await prisma.hospital.findFirst();
+    resolvedHospitalId = primaryHospital?.id;
+  }
+
+  const raw = String(searchTerm || '').trim();
+  if (!raw) return { found: false };
+
+  // Parse token number & department code if available (e.g. "T-001", "GEN-002", "1")
+  const parsedNum = parseInt(raw.replace(/^[A-Za-z]+[-_ ]*0*/, ''), 10);
+  const codeMatch = raw.match(/^([A-Za-z]+)/);
+  const deptCode = codeMatch ? codeMatch[1].toUpperCase() : null;
+
+  const orConditions = [
+    { patient: { uhid: { equals: raw, mode: 'insensitive' } } },
+    { patient: { uhid: { contains: raw, mode: 'insensitive' } } },
+  ];
+
+  if (!isNaN(parsedNum)) {
+    if (deptCode && deptCode !== 'T') {
+      orConditions.push({
+        tokenNumber: parsedNum,
+        department: { code: { equals: deptCode, mode: 'insensitive' } },
+      });
+    }
+    orConditions.push({ tokenNumber: parsedNum });
+  }
+
+  // Retrieve candidate tokens from DB, preferring active/recent tokens
+  const tokens = await prisma.token.findMany({
+    where: {
+      hospitalId: resolvedHospitalId,
+      OR: orConditions,
+    },
+    include: {
+      patient: true,
+      doctor: {
+        include: {
+          user: true,
+          department: true,
+          schedules: {
+            where: { isActive: true },
+          },
+        },
+      },
+      department: true,
+    },
+    orderBy: [
+      { queueDate: 'desc' },
+      { updatedAt: 'desc' },
+    ],
+    take: 5,
+  });
+
+  if (!tokens || tokens.length === 0) {
+    return { found: false };
+  }
+
+  // Prioritize active tokens (WAITING, CALLED, IN_CONSULTATION), then today's, then newest
+  const activeToken = tokens.find((t) => ['CALLED', 'IN_CONSULTATION', 'WAITING'].includes(t.status)) || tokens[0];
+
+  // Current token being called / in consultation by this doctor
+  const activeCall = await prisma.token.findFirst({
+    where: {
+      hospitalId: resolvedHospitalId,
+      doctorId: activeToken.doctorId,
+      queueDate: activeToken.queueDate,
+      status: { in: ['CALLED', 'IN_CONSULTATION'] },
+    },
+    orderBy: { updatedAt: 'desc' },
+  });
+
+  const calledTokenFormatted = activeCall
+    ? `T-${String(activeCall.tokenNumber).padStart(3, '0')}`
+    : 'None';
+
+  // Calculate waiting queue position & ahead count
+  let aheadCount = 0;
+  let estWait = 'Immediate (Please proceed to chamber)';
+  let stageIndex = 0;
+
+  const dayOfWeek = activeToken.queueDate ? new Date(activeToken.queueDate).getDay() : new Date().getDay();
+  const schedule = activeToken.doctor?.schedules?.find((s) => s.dayOfWeek === dayOfWeek) || activeToken.doctor?.schedules?.[0];
+  const slotMinutes = schedule?.slotDurationMinutes || 15;
+
+  if (activeToken.status === 'WAITING') {
+    aheadCount = await prisma.token.count({
+      where: {
+        hospitalId: resolvedHospitalId,
+        doctorId: activeToken.doctorId,
+        queueDate: activeToken.queueDate,
+        status: 'WAITING',
+        tokenNumber: { lt: activeToken.tokenNumber },
+      },
+    });
+
+    if (aheadCount === 0) {
+      estWait = `Next in line (~${slotMinutes} mins)`;
+      stageIndex = 2; // Vital Triage / Next in Line
+    } else {
+      estWait = `~${(aheadCount + 1) * slotMinutes} mins`;
+      stageIndex = 1; // Waiting Hall
+    }
+  } else if (activeToken.status === 'CALLED') {
+    aheadCount = 0;
+    estWait = 'Now Calling - Proceed to Room';
+    stageIndex = 3; // Doctor Suite
+  } else if (activeToken.status === 'IN_CONSULTATION') {
+    aheadCount = 0;
+    estWait = 'Currently In Consultation';
+    stageIndex = 3; // Doctor Suite
+  } else if (activeToken.status === 'COMPLETED') {
+    aheadCount = 0;
+    estWait = 'Consultation Completed';
+    stageIndex = 3;
+  } else {
+    estWait = activeToken.status;
+    stageIndex = 0;
+  }
+
+  const prefix = activeToken.department?.code || 'GEN';
+  const displayToken = `${prefix}-${String(activeToken.tokenNumber).padStart(3, '0')}`;
+  const canonicalToken = `T-${String(activeToken.tokenNumber).padStart(3, '0')}`;
+
+  return {
+    found: true,
+    id: activeToken.id,
+    token: canonicalToken,
+    displayToken,
+    tokenNumber: activeToken.tokenNumber,
+    department: activeToken.department?.name || 'General Clinic',
+    doctor: activeToken.doctor?.user?.name || 'Physician',
+    room: activeToken.doctor?.roomNumber || 'Room 101',
+    status: activeToken.status === 'CALLED' ? 'Now Calling / In Room' :
+            activeToken.status === 'IN_CONSULTATION' ? 'In Consultation' :
+            activeToken.status === 'COMPLETED' ? 'Completed' :
+            activeToken.status === 'WAITING' ? 'Waiting in Queue' : activeToken.status,
+    ahead: aheadCount,
+    estWait,
+    calledToken: calledTokenFormatted,
+    stageIndex,
+    patientName: maskPatientName(activeToken.patient?.fullName),
+    uhid: activeToken.patient?.uhid || null,
+    queueDate: activeToken.queueDate.toISOString().split('T')[0],
+  };
+};
+

@@ -20,6 +20,7 @@ import pharmacyRoutes from './modules/pharmacy/pharmacy.routes.js';
 import billingRoutes from './modules/billing/billing.routes.js';
 import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
 import reportRoutes from './modules/reports/reports.routes.js';
+import searchRoutes from './modules/search/search.routes.js';
 import { notFoundHandler, globalErrorHandler } from './middlewares/errorHandler.js';
 import { generalApiLimiter } from './middlewares/rateLimiter.js';
 
@@ -77,6 +78,7 @@ app.use('/api/pharmacy', pharmacyRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/search', searchRoutes);
 
 // Fallback handlers
 app.use(notFoundHandler);

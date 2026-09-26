@@ -8,6 +8,9 @@ const router = Router();
 // 1. Public Display Feed (Unauthenticated read-only for waiting area TV displays)
 router.get('/public-display', publicLimiter, queueController.getPublicDisplay);
 
+// 2. Public Live Token Tracker (Unauthenticated self-service tracking by Token # or UHID)
+router.get('/track', publicLimiter, queueController.trackToken);
+
 // Protected routes below
 router.use(authenticate);
 

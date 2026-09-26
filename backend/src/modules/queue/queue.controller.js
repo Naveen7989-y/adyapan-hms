@@ -66,3 +66,27 @@ export const getPublicDisplay = async (req, res, next) => {
     next(error);
   }
 };
+
+export const trackToken = async (req, res, next) => {
+  try {
+    const { query, q, token, uhid, hospitalId } = req.query;
+    const searchTerm = query || q || token || uhid;
+    if (!searchTerm) {
+      return errorResponse(res, 'Search query parameter is required (Token Number or UHID)', [], 400);
+    }
+    const result = await queueService.trackTokenData(
+      hospitalId || req.user?.hospitalId,
+      searchTerm
+    );
+    if (!result || !result.found) {
+      return successResponse(res, 'No active token found', {
+        found: false,
+        message: 'No active consultation token or patient found for this identifier.',
+      });
+    }
+    return successResponse(res, 'Token tracking status retrieved successfully', result);
+  } catch (error) {
+    next(error);
+  }
+};
+

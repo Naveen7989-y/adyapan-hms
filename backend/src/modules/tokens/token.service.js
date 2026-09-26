@@ -8,6 +8,7 @@ import {
   emitPriorityUpdate,
   emitConsultationStatus,
 } from '../realtime/socket.service.js';
+import { expirePastDayAppointments } from '../appointments/appointment.service.js';
 
 /**
  * Format helper for calendar date portion (midnight)
@@ -114,7 +115,7 @@ export const checkInAppointment = async (hospitalId, { appointmentId, tokenType 
     throw err;
   }
 
-  if (['CANCELLED', 'COMPLETED', 'NO_SHOW'].includes(existingAppt.status)) {
+  if (['CANCELLED', 'COMPLETED', 'NO_SHOW', 'EXPIRED'].includes(existingAppt.status)) {
     const err = new Error(`Cannot check in an appointment with status: ${existingAppt.status}`);
     err.statusCode = 400;
     throw err;
@@ -122,11 +123,76 @@ export const checkInAppointment = async (hospitalId, { appointmentId, tokenType 
 
   const queueDate = getNormalizedDate();
 
+  if (existingAppt.appointmentDate < queueDate) {
+    const err = new Error('This appointment has expired because its scheduled date has passed.');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  // Enforce rule: Same patient cannot be checked in more than once simultaneously
+  const existingActiveToken = await prisma.token.findFirst({
+    where: {
+      hospitalId,
+      queueDate,
+      status: { in: ['WAITING', 'CALLED', 'IN_CONSULTATION'] },
+      OR: [
+        { patientId: existingAppt.patientId },
+        ...(existingAppt.patient?.uhid ? [{ patient: { uhid: existingAppt.patient.uhid } }] : []),
+        ...(existingAppt.patient?.phone ? [{ patient: { phone: existingAppt.patient.phone } }] : []),
+      ],
+    },
+    include: {
+      doctor: { include: { user: true } },
+      department: true,
+    },
+  });
+
+  if (existingActiveToken) {
+    const docName = existingActiveToken.doctor?.user?.name || 'Assigned Doctor';
+    const deptName = existingActiveToken.department?.name || 'Clinic';
+    const tokenCode = `T-${String(existingActiveToken.tokenNumber).padStart(3, '0')}`;
+    const err = new Error(
+      `Patient "${existingAppt.patient.fullName}" (${existingAppt.patient.uhid}) already has an active Token #${tokenCode} in the queue for Dr. ${docName} (${deptName}) with status: ${existingActiveToken.status}. The same person cannot be checked in at the same time.`
+    );
+    err.statusCode = 409;
+    throw err;
+  }
+
   // Execute atomic token generation & appointment state transition
   const result = await prisma.$transaction(async (tx) => {
-    // Acquire PostgreSQL transaction-level advisory lock on this doctor's daily queue
+    // Acquire PostgreSQL transaction-level advisory locks on both doctor queue and patient check-in
     const dateKey = queueDate.toISOString().split('T')[0];
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${existingAppt.doctorId} || '-queue-' || ${dateKey}))`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('patient-queue-' || ${existingAppt.patientId} || '-' || ${dateKey}))`;
+
+    // Re-verify under transaction lock to prevent concurrent double check-in race conditions
+    const activeUnderLock = await tx.token.findFirst({
+      where: {
+        hospitalId,
+        queueDate,
+        status: { in: ['WAITING', 'CALLED', 'IN_CONSULTATION'] },
+        OR: [
+          { patientId: existingAppt.patientId },
+          ...(existingAppt.patient?.uhid ? [{ patient: { uhid: existingAppt.patient.uhid } }] : []),
+          ...(existingAppt.patient?.phone ? [{ patient: { phone: existingAppt.patient.phone } }] : []),
+        ],
+      },
+      include: {
+        doctor: { include: { user: true } },
+        department: true,
+      },
+    });
+
+    if (activeUnderLock) {
+      const docName = activeUnderLock.doctor?.user?.name || 'Assigned Doctor';
+      const deptName = activeUnderLock.department?.name || 'Clinic';
+      const tokenCode = `T-${String(activeUnderLock.tokenNumber).padStart(3, '0')}`;
+      const err = new Error(
+        `Patient "${existingAppt.patient.fullName}" (${existingAppt.patient.uhid}) already has an active Token #${tokenCode} in the queue for Dr. ${docName} (${deptName}) with status: ${activeUnderLock.status}. The same person cannot be checked in at the same time.`
+      );
+      err.statusCode = 409;
+      throw err;
+    }
 
     // Determine next sequential token number for this doctor on queueDate
     const lastToken = await tx.token.findFirst({
@@ -255,11 +321,70 @@ export const createWalkInToken = async (hospitalId, {
   const resolvedDepartmentId = departmentId || doctor.departmentId;
   const queueDate = getNormalizedDate();
 
+  // Enforce rule: Same patient cannot be checked in more than once simultaneously
+  const existingActiveToken = await prisma.token.findFirst({
+    where: {
+      hospitalId,
+      queueDate,
+      status: { in: ['WAITING', 'CALLED', 'IN_CONSULTATION'] },
+      OR: [
+        { patientId },
+        ...(patient.uhid ? [{ patient: { uhid: patient.uhid } }] : []),
+        ...(patient.phone ? [{ patient: { phone: patient.phone } }] : []),
+      ],
+    },
+    include: {
+      doctor: { include: { user: true } },
+      department: true,
+    },
+  });
+
+  if (existingActiveToken) {
+    const docName = existingActiveToken.doctor?.user?.name || 'Assigned Doctor';
+    const deptName = existingActiveToken.department?.name || 'Clinic';
+    const tokenCode = `T-${String(existingActiveToken.tokenNumber).padStart(3, '0')}`;
+    const err = new Error(
+      `Patient "${patient.fullName}" (${patient.uhid}) already has an active Token #${tokenCode} in the queue for Dr. ${docName} (${deptName}) with status: ${existingActiveToken.status}. The same person cannot be checked in at the same time.`
+    );
+    err.statusCode = 409;
+    throw err;
+  }
+
   // Execute atomic transaction
   const result = await prisma.$transaction(async (tx) => {
-    // Acquire PostgreSQL transaction-level advisory lock on this doctor's daily queue
+    // Acquire PostgreSQL transaction-level advisory locks on both doctor queue and patient check-in
     const dateKey = queueDate.toISOString().split('T')[0];
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${doctorId} || '-queue-' || ${dateKey}))`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('patient-queue-' || ${patientId} || '-' || ${dateKey}))`;
+
+    // Re-verify under transaction lock to prevent concurrent double check-in race conditions
+    const activeUnderLock = await tx.token.findFirst({
+      where: {
+        hospitalId,
+        queueDate,
+        status: { in: ['WAITING', 'CALLED', 'IN_CONSULTATION'] },
+        OR: [
+          { patientId },
+          ...(patient.uhid ? [{ patient: { uhid: patient.uhid } }] : []),
+          ...(patient.phone ? [{ patient: { phone: patient.phone } }] : []),
+        ],
+      },
+      include: {
+        doctor: { include: { user: true } },
+        department: true,
+      },
+    });
+
+    if (activeUnderLock) {
+      const docName = activeUnderLock.doctor?.user?.name || 'Assigned Doctor';
+      const deptName = activeUnderLock.department?.name || 'Clinic';
+      const tokenCode = `T-${String(activeUnderLock.tokenNumber).padStart(3, '0')}`;
+      const err = new Error(
+        `Patient "${patient.fullName}" (${patient.uhid}) already has an active Token #${tokenCode} in the queue for Dr. ${docName} (${deptName}) with status: ${activeUnderLock.status}. The same person cannot be checked in at the same time.`
+      );
+      err.statusCode = 409;
+      throw err;
+    }
 
     const lastToken = await tx.token.findFirst({
       where: {
@@ -546,12 +671,13 @@ export const getTodayBookedAppointments = async (hospitalId, query = {}) => {
   const { doctorId, search, date } = query;
   const targetDate = getNormalizedDate(date);
 
+  // Automatically expire appointments when the day changes
+  await expirePastDayAppointments(hospitalId);
+
   const where = {
     hospitalId,
-    OR: [
-      { appointmentDate: targetDate },
-      { appointmentDate: { lte: targetDate }, status: { in: ['BOOKED', 'CONFIRMED', 'PENDING', 'CHECKED_IN'] } },
-    ],
+    appointmentDate: targetDate, // Strictly today's appointments
+    status: { in: ['BOOKED', 'CHECKED_IN'] },
     token: null, // Only appointments that haven't received a token yet
   };
 

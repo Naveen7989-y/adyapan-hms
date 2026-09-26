@@ -13,6 +13,7 @@ const VALID_STATUSES = [
   'COMPLETED',
   'CANCELLED',
   'NO_SHOW',
+  'EXPIRED',
 ];
 
 /**
@@ -21,6 +22,66 @@ const VALID_STATUSES = [
 export const toCanonicalDate = (dateStr) => {
   const [year, month, day] = dateStr.split('-').map(Number);
   return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+};
+
+/**
+ * Helper to get today's canonical UTC midnight Date object
+ */
+export const getTodayCanonicalDate = () => {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+};
+
+/**
+ * Automatically expire appointments and tokens whose scheduled date has passed (day changed)
+ */
+export const expirePastDayAppointments = async (hospitalId = null) => {
+  try {
+    const today = getTodayCanonicalDate();
+
+    // Expire any appointments whose appointmentDate is prior to today and still pending/waiting
+    const whereAppt = {
+      appointmentDate: { lt: today },
+      status: { in: ['BOOKED', 'CHECKED_IN', 'WAITING'] },
+      ...(hospitalId && { hospitalId }),
+    };
+
+    const expiredAppts = await prisma.appointment.updateMany({
+      where: whereAppt,
+      data: {
+        status: 'EXPIRED',
+        cancellationReason: 'Automatically expired: Consultation date passed without completion',
+      },
+    });
+
+    // Also close any lingering unserved queue tokens from previous days
+    const whereToken = {
+      queueDate: { lt: today },
+      status: { in: ['WAITING', 'CALLED'] },
+      ...(hospitalId && { hospitalId }),
+    };
+
+    const expiredTokens = await prisma.token.updateMany({
+      where: whereToken,
+      data: {
+        status: 'SKIPPED',
+      },
+    });
+
+    if (expiredAppts.count > 0 || expiredTokens.count > 0) {
+      console.log(
+        `[Auto-Expire] Expired ${expiredAppts.count} past appointment(s) and ${expiredTokens.count} past token(s) prior to ${today.toISOString().split('T')[0]}`
+      );
+    }
+
+    return {
+      expiredAppointmentsCount: expiredAppts.count,
+      expiredTokensCount: expiredTokens.count,
+    };
+  } catch (err) {
+    console.error('[Auto-Expire Error] Failed to expire past appointments:', err.message);
+    return { expiredAppointmentsCount: 0, expiredTokensCount: 0 };
+  }
 };
 
 /**
@@ -51,6 +112,18 @@ export const getAvailableSlots = async (hospitalId, doctorId, dateStr) => {
   }
 
   const targetDate = toCanonicalDate(dateStr);
+  const today = getTodayCanonicalDate();
+
+  if (targetDate < today) {
+    return {
+      doctor: null,
+      date: dateStr,
+      isAvailable: false,
+      message: 'Cannot schedule appointments for past dates. This date has expired.',
+      slots: [],
+    };
+  }
+
   const dayOfWeek = targetDate.getUTCDay(); // 0 = Sunday, 1 = Monday...
 
   const doctor = await prisma.doctor.findFirst({
@@ -170,6 +243,14 @@ export const bookAppointment = async (hospitalId, data) => {
   }
 
   const targetDate = toCanonicalDate(dateStr);
+  const today = getTodayCanonicalDate();
+
+  if (targetDate < today) {
+    const error = new Error('Cannot book an appointment for a past date. Date has already expired.');
+    error.statusCode = 400;
+    throw error;
+  }
+
   const dayOfWeek = targetDate.getUTCDay();
 
   // Validate patient
@@ -210,18 +291,97 @@ export const bookAppointment = async (hospitalId, data) => {
 
   const schedule = doctor.schedules[0];
 
+  // Pre-check: Check if patient already has an existing appointment on this date
+  const existingPatientBookingPre = await prisma.appointment.findFirst({
+    where: {
+      patientId,
+      appointmentDate: targetDate,
+      status: { notIn: ['CANCELLED', 'EXPIRED', 'NO_SHOW'] },
+    },
+    include: {
+      doctor: {
+        include: {
+          user: { select: { name: true } },
+          department: { select: { name: true } },
+        },
+      },
+    },
+  });
+
+  if (existingPatientBookingPre) {
+    const isSameDoctor = existingPatientBookingPre.doctorId === doctorId;
+    const docName = existingPatientBookingPre.doctor?.user?.name || 'Assigned Physician';
+    const deptName = existingPatientBookingPre.doctor?.department?.name || 'Department';
+
+    if (isSameDoctor) {
+      const error = new Error(
+        `Patient has an existing Appointment on this day with Dr. ${docName} at ${existingPatientBookingPre.timeSlot}. Duplicate booking for the same physician on the same date is not allowed.`
+      );
+      error.statusCode = 409;
+      throw error;
+    }
+
+    if (!data.allowMultipleSameDay) {
+      const error = new Error(
+        `Patient has an existing Appointment on this day with Dr. ${docName} (${deptName}) at ${existingPatientBookingPre.timeSlot} (Status: ${existingPatientBookingPre.status}).`
+      );
+      error.statusCode = 409;
+      throw error;
+    }
+  }
+
   // Execute booking inside atomic transaction to prevent double booking race conditions
   const appointment = await prisma.$transaction(async (tx) => {
-    // Acquire PostgreSQL transaction-level advisory lock on specific doctor+date+slot
+    // Acquire PostgreSQL transaction-level advisory locks on doctor+date+slot and patient+date
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${doctorId} || '-' || ${dateStr} || '-' || ${timeSlot}))`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('patient-appt-' || ${patientId} || '-' || ${dateStr}))`;
 
-    // 1. Check double booking conflict on specific slot
+    // 1. Verify under transaction lock if patient already has an active appointment on this date
+    const existingPatientBookingTx = await tx.appointment.findFirst({
+      where: {
+        patientId,
+        appointmentDate: targetDate,
+        status: { notIn: ['CANCELLED', 'EXPIRED', 'NO_SHOW'] },
+      },
+      include: {
+        doctor: {
+          include: {
+            user: { select: { name: true } },
+            department: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    if (existingPatientBookingTx) {
+      const isSameDoctor = existingPatientBookingTx.doctorId === doctorId;
+      const docName = existingPatientBookingTx.doctor?.user?.name || 'Assigned Physician';
+      const deptName = existingPatientBookingTx.doctor?.department?.name || 'Department';
+
+      if (isSameDoctor) {
+        const error = new Error(
+          `Patient has an existing Appointment on this day with Dr. ${docName} at ${existingPatientBookingTx.timeSlot}. Duplicate booking for the same physician on the same date is not allowed.`
+        );
+        error.statusCode = 409;
+        throw error;
+      }
+
+      if (!data.allowMultipleSameDay) {
+        const error = new Error(
+          `Patient has an existing Appointment on this day with Dr. ${docName} (${deptName}) at ${existingPatientBookingTx.timeSlot} (Status: ${existingPatientBookingTx.status}).`
+        );
+        error.statusCode = 409;
+        throw error;
+      }
+    }
+
+    // 2. Check double booking conflict on specific slot
     const existingSlotBooking = await tx.appointment.findFirst({
       where: {
         doctorId,
         appointmentDate: targetDate,
         timeSlot,
-        status: { notIn: ['CANCELLED'] },
+        status: { notIn: ['CANCELLED', 'EXPIRED', 'NO_SHOW'] },
       },
     });
 
@@ -231,12 +391,12 @@ export const bookAppointment = async (hospitalId, data) => {
       throw error;
     }
 
-    // 2. Check total daily capacity limit
+    // 3. Check total daily capacity limit
     const dailyBookingsCount = await tx.appointment.count({
       where: {
         doctorId,
         appointmentDate: targetDate,
-        status: { notIn: ['CANCELLED'] },
+        status: { notIn: ['CANCELLED', 'EXPIRED', 'NO_SHOW'] },
       },
     });
 
@@ -288,12 +448,16 @@ export const bookAppointment = async (hospitalId, data) => {
  * List and filter appointments
  */
 export const listAppointments = async (hospitalId, query = {}) => {
-  const { date, doctorId, departmentId, status, search, page = 1, limit = 50 } = query;
+  // Automatically expire appointments when the day changes
+  await expirePastDayAppointments(hospitalId);
+
+  const { date, doctorId, departmentId, patientId, status, search, page = 1, limit = 50 } = query;
   const take = Math.min(parseInt(limit, 10) || 50, 100);
   const skip = ((parseInt(page, 10) || 1) - 1) * take;
 
   const whereClause = {
     hospitalId,
+    ...(patientId && { patientId }),
     ...(doctorId && { doctorId }),
     ...(departmentId && { departmentId }),
     ...(status && { status }),
