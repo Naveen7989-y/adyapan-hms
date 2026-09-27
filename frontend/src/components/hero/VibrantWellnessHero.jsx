@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Activity, Clock, ShieldCheck, Stethoscope, Users } from 'lucide-react';
+import { ArrowRight, Activity } from 'lucide-react';
 
 export default function VibrantWellnessApp({ onBeginJourney }) {
   const videoRef = useRef(null);
@@ -15,7 +15,6 @@ export default function VibrantWellnessApp({ onBeginJourney }) {
         playPromise
           .then(() => setIsVideoPlaying(true))
           .catch(() => {
-            // Autoplay blocked by browser policy, keep poster visible
             setIsVideoPlaying(false);
           });
       }
@@ -62,7 +61,7 @@ export default function VibrantWellnessApp({ onBeginJourney }) {
         }
       `}</style>
 
-      {/* Ambient Lighting Orbs (Always provides luminous medical depth even before video plays) */}
+      {/* Ambient Lighting Orbs */}
       <div className="absolute top-1/4 left-10 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl pointer-events-none animate-ambient-glow" />
       <div className="absolute bottom-10 right-10 w-[30rem] h-[30rem] bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow" style={{ animationDelay: '3s' }} />
       <div className="absolute top-1/2 right-1/4 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -93,120 +92,65 @@ export default function VibrantWellnessApp({ onBeginJourney }) {
       {/* Main Hero Content */}
       <main className="relative z-10 flex flex-col justify-center min-h-[85vh] sm:min-h-[calc(100vh-80px)] px-5 pt-16 pb-12 sm:px-8 sm:pt-20 sm:pb-16 md:px-16 lg:px-20 max-w-7xl mx-auto">
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+        {/* Hero Heading & CTAs */}
+        <div className="max-w-3xl text-left">
           
-          {/* LEFT COLUMN: Hero Heading & CTAs */}
-          <div className="lg:col-span-7 text-left">
-            
-            {/* Badge */}
-            <div className="liquid-glass rounded-full inline-flex items-center gap-2.5 sm:gap-3 px-3.5 py-1.5 sm:px-4 sm:py-2 mb-6 shadow-md">
-              <div className="flex -space-x-2">
-                <img
-                  src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100"
-                  alt="Doctor 1"
-                  className="h-6 w-6 rounded-full border-2 border-white/20 object-cover"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
-                <img
-                  src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100"
-                  alt="Doctor 2"
-                  className="h-6 w-6 rounded-full border-2 border-white/20 object-cover"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
-                <img
-                  src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100"
-                  alt="Doctor 3"
-                  className="h-6 w-6 rounded-full border-2 border-white/20 object-cover"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
-              </div>
-              <span className="text-xs sm:text-sm font-medium text-emerald-300 tracking-wide flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                NABH Accredited Multi-Specialty Care
-              </span>
+          {/* Badge */}
+          <div className="liquid-glass rounded-full inline-flex items-center gap-2.5 sm:gap-3 px-3.5 py-1.5 sm:px-4 sm:py-2 mb-6 shadow-md">
+            <div className="flex -space-x-2">
+              <img
+                src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100"
+                alt="Doctor 1"
+                className="h-6 w-6 rounded-full border-2 border-white/20 object-cover"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+              <img
+                src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100"
+                alt="Doctor 2"
+                className="h-6 w-6 rounded-full border-2 border-white/20 object-cover"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+              <img
+                src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100"
+                alt="Doctor 3"
+                className="h-6 w-6 rounded-full border-2 border-white/20 object-cover"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
             </div>
-
-            {/* Heading */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] text-white tracking-tight-custom">
-              Heal Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300">Body</span>
-            </h1>
-
-            {/* Subtitle */}
-            <p className="mt-5 text-base sm:text-lg md:text-xl font-light text-slate-200 max-w-xl leading-relaxed">
-              Holistic wellness. Transformative results. Reconnect your mind, body, and spirit with our clinically backed natural healing pathways.
-            </p>
-
-            {/* CTA Button Row */}
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <button
-                type="button"
-                onClick={handleCtaClick}
-                className="liquid-glass rounded-full px-7 py-3.5 text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:bg-emerald-500/20 hover:scale-[1.02] flex items-center gap-2 group shadow-xl cursor-pointer border border-emerald-400/40"
-              >
-                <span>Begin Your Journey</span>
-                <ArrowRight className="w-4 h-4 text-emerald-300 transition-transform duration-300 group-hover:translate-x-1" />
-              </button>
-
-              <a
-                href="#token-tracker"
-                className="rounded-full px-6 py-3.5 text-sm sm:text-base font-medium text-slate-300 hover:text-white transition-colors duration-200 flex items-center gap-2"
-              >
-                <Activity className="w-4 h-4 text-teal-400" />
-                <span>Track Live Token</span>
-              </a>
-            </div>
-
+            <span className="text-xs sm:text-sm font-medium text-emerald-300 tracking-wide flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              NABH Accredited Multi-Specialty Care
+            </span>
           </div>
 
-          {/* RIGHT COLUMN: Glassmorphic Clinical Authority Highlights Card */}
-          <div className="lg:col-span-5 hidden lg:block">
-            <div className="liquid-glass rounded-3xl p-6 sm:p-7 border border-white/15 shadow-2xl relative overflow-hidden backdrop-blur-xl">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-teal-400/10 rounded-full blur-2xl pointer-events-none" />
-              
-              <div className="flex items-center justify-between pb-5 border-b border-white/10">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300">
-                    <Stethoscope className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-white">Adyapan Clinical Center</h3>
-                    <p className="text-xs text-slate-400">Emergency & OPD Operational</p>
-                  </div>
-                </div>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                  Live OPD
-                </span>
-              </div>
+          {/* Heading */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] text-white tracking-tight-custom">
+            Heal Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300">Body</span>
+          </h1>
 
-              <div className="grid grid-cols-2 gap-3.5 my-5">
-                <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
-                  <div className="flex items-center gap-2 text-teal-300 mb-1">
-                    <Users className="w-4 h-4" />
-                    <span className="text-xs font-semibold text-slate-300">Specialists</span>
-                  </div>
-                  <div className="text-xl font-bold text-white">45+ Doctors</div>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Across 12 Departments</p>
-                </div>
+          {/* Subtitle */}
+          <p className="mt-5 text-base sm:text-lg md:text-xl font-light text-slate-200 max-w-xl leading-relaxed">
+            Holistic wellness. Transformative results. Reconnect your mind, body, and spirit with our clinically backed natural healing pathways.
+          </p>
 
-                <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
-                  <div className="flex items-center gap-2 text-amber-300 mb-1">
-                    <Clock className="w-4 h-4" />
-                    <span className="text-xs font-semibold text-slate-300">Avg. Wait</span>
-                  </div>
-                  <div className="text-xl font-bold text-white">&lt; 15 mins</div>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Smart Token Dispatch</p>
-                </div>
-              </div>
+          {/* CTA Button Row */}
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <button
+              type="button"
+              onClick={handleCtaClick}
+              className="liquid-glass rounded-full px-7 py-3.5 text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:bg-emerald-500/20 hover:scale-[1.02] flex items-center gap-2 group shadow-xl cursor-pointer border border-emerald-400/40"
+            >
+              <span>Begin Your Journey</span>
+              <ArrowRight className="w-4 h-4 text-emerald-300 transition-transform duration-300 group-hover:translate-x-1" />
+            </button>
 
-              <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-300">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  <span>100% Verified Prescriptions</span>
-                </div>
-                <span className="text-slate-400 font-mono text-[11px]">HYD • Central</span>
-              </div>
-            </div>
+            <a
+              href="#token-tracker"
+              className="rounded-full px-6 py-3.5 text-sm sm:text-base font-medium text-slate-300 hover:text-white transition-colors duration-200 flex items-center gap-2"
+            >
+              <Activity className="w-4 h-4 text-teal-400" />
+              <span>Track Live Token</span>
+            </a>
           </div>
 
         </div>
