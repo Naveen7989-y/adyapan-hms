@@ -278,7 +278,7 @@ export default function LiveQueue() {
         <div>
           <div className="flex items-center space-x-2 text-xs font-semibold text-brand-600 uppercase tracking-wider mb-1">
             <Stethoscope className="w-4 h-4 flex-shrink-0" />
-            <span>Phase 9 — Doctor Calling Desk</span>
+            <span>Doctor Calling Desk</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             Live Queue & Consultation Desk

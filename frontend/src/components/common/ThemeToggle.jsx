@@ -38,10 +38,10 @@ export const ThemeToggle = ({
     <button
       type="button"
       onClick={toggleTheme}
-      className={`relative inline-flex items-center justify-center transition-all duration-300 transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#D99A32]/40 select-none group ${
+      className={`relative inline-flex items-center justify-center transition-all duration-300 transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#0D9488]/40 select-none group ${
         isDark
-          ? 'bg-[#0B1524] hover:bg-[#102030] text-[#F9D054] border border-[#D99A32]/40 shadow-sm hover:shadow-gold-glow hover:border-[#D99A32]'
-          : 'bg-[#FFF9F0] hover:bg-[#FFFCF7] text-[#D99A32] hover:text-[#B97B20] border border-[#E6D9C6] shadow-xs hover:shadow-sm hover:border-[#D99A32]'
+          ? 'bg-[#0B1524] hover:bg-[#102030] text-[#1EAD86] border border-[#05775A]/40 shadow-sm hover:shadow-gold-glow hover:border-[#05775A]'
+          : 'bg-white hover:bg-[#F8FAFC] text-[#0D9488] hover:text-[#0F766E] border border-[#E2E8F0] shadow-xs hover:shadow-sm hover:border-[#0D9488]'
       } ${config.btn} ${className}`}
       title={isDark ? 'Dark theme active • Click for Light theme' : 'Light theme active • Click for Dark theme'}
       aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
@@ -50,10 +50,10 @@ export const ThemeToggle = ({
       <span className="relative flex items-center justify-center transition-transform duration-300 group-hover:rotate-12">
         {isDark ? (
           // Moon icon when dark theme
-          <Moon className={`${config.icon} text-[#F9D054] animate-in fade-in zoom-in duration-200 fill-[#F9D054]/20`} />
+          <Moon className={`${config.icon} text-[#1EAD86] animate-in fade-in zoom-in duration-200 fill-[#05775A]/20`} />
         ) : (
           // Sun icon when light theme
-          <Sun className={`${config.icon} text-[#D99A32] group-hover:text-[#B97B20] animate-in fade-in zoom-in duration-200 fill-[#D99A32]/20`} />
+          <Sun className={`${config.icon} text-[#0D9488] group-hover:text-[#0F766E] animate-in fade-in zoom-in duration-200 fill-[#0D9488]/20`} />
         )}
       </span>
 

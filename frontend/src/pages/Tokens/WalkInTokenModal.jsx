@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 
-export default function WalkInTokenModal({ onClose, onSuccess }) {
+export default function WalkInTokenModal({ onClose, onSuccess, existingTokens = [] }) {
   // Mode: 'search' for existing patients, 'quick_register' for direct walk-in registration
   const [patientMode, setPatientMode] = useState('search');
 
@@ -25,6 +25,18 @@ export default function WalkInTokenModal({ onClose, onSuccess }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loadingPatients, setLoadingPatients] = useState(false);
+
+  // Detect if selected patient is already active in the queue
+  const activeExistingToken = selectedPatient
+    ? existingTokens.find(
+        (t) =>
+          ['WAITING', 'CALLED', 'IN_CONSULTATION'].includes(t.status) &&
+          (t.patientId === selectedPatient.id ||
+            t.patient?.id === selectedPatient.id ||
+            (selectedPatient.uhid && t.patient?.uhid === selectedPatient.uhid) ||
+            (selectedPatient.phone && t.patient?.phone === selectedPatient.phone))
+      )
+    : null;
 
   // Quick new patient state
   const [newPatientData, setNewPatientData] = useState({
@@ -158,6 +170,15 @@ export default function WalkInTokenModal({ onClose, onSuccess }) {
       }
     }
 
+    if (activeExistingToken) {
+      setError(
+        `Patient "${selectedPatient.fullName}" already has active Token #${
+          activeExistingToken.formattedToken || 'T-' + activeExistingToken.tokenNumber
+        } (${activeExistingToken.status}). Same person cannot be checked in at the same time.`
+      );
+      return;
+    }
+
     if (!selectedDoctorId) {
       setError('Please assign a consultation doctor');
       setSubmitting(false);
@@ -262,7 +283,8 @@ export default function WalkInTokenModal({ onClose, onSuccess }) {
             {patientMode === 'search' && (
               <div>
                 {selectedPatient ? (
-                  <div className="p-3.5 bg-sky-50/80 border border-sky-200 rounded-xl flex items-center justify-between shadow-xs">
+                  <>
+                    <div className="p-3.5 bg-sky-50/80 border border-sky-200 rounded-xl flex items-center justify-between shadow-xs">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
                         {selectedPatient.fullName?.[0]?.toUpperCase() || 'P'}
@@ -296,6 +318,22 @@ export default function WalkInTokenModal({ onClose, onSuccess }) {
                       Change
                     </button>
                   </div>
+
+                  {activeExistingToken && (
+                    <div className="mt-2.5 p-3.5 bg-amber-50 border border-amber-300 rounded-xl flex items-start space-x-2.5 text-amber-900 text-xs shadow-xs animate-in fade-in">
+                      <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold text-amber-950">Patient Already Checked In</div>
+                        <p className="mt-0.5 text-amber-800">
+                          This patient currently has active Token <strong>#{activeExistingToken.formattedToken || `T-${String(activeExistingToken.tokenNumber).padStart(3, '0')}`}</strong> in the Waiting Lounge (Status: <strong>{activeExistingToken.status}</strong> for Dr. {activeExistingToken.doctor?.user?.name || 'Assigned Doctor'}).
+                        </p>
+                        <p className="mt-1 text-[11px] text-amber-700 font-semibold">
+                          Same person cannot be checked in at the same time. Please wait until their ongoing consultation is completed or cancelled.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </>
                 ) : (
                   <div className="relative">
                     <div className="relative">
@@ -606,11 +644,17 @@ export default function WalkInTokenModal({ onClose, onSuccess }) {
             </button>
             <button
               type="submit"
-              disabled={submitting}
-              className="px-5 py-2 text-xs font-bold text-white bg-sky-600 hover:bg-sky-500 disabled:opacity-50 rounded-xl shadow-sm transition-colors flex items-center space-x-1.5"
+              disabled={submitting || Boolean(activeExistingToken)}
+              className="px-5 py-2 text-xs font-bold text-white bg-sky-600 hover:bg-sky-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-sm transition-colors flex items-center space-x-1.5"
             >
               {submitting && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
-              <span>{submitting ? 'Generating Walk-In Token...' : 'Issue Digital Token & Pass'}</span>
+              <span>
+                {submitting
+                  ? 'Generating Walk-In Token...'
+                  : activeExistingToken
+                  ? 'Cannot Check In (Already Active)'
+                  : 'Issue Digital Token & Pass'}
+              </span>
             </button>
           </div>
         </form>

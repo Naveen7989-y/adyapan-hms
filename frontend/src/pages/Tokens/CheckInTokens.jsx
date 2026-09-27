@@ -113,6 +113,24 @@ export default function CheckInTokens() {
 
   // Handle appointment check-in
   const handleCheckIn = async (appointmentId) => {
+    const appt = bookedAppointments.find((a) => a.id === appointmentId);
+    if (appt) {
+      const alreadyActive = tokens.find(
+        (t) =>
+          ['WAITING', 'CALLED', 'IN_CONSULTATION'].includes(t.status) &&
+          (t.patientId === appt.patientId ||
+            (appt.patient?.uhid && t.patient?.uhid === appt.patient?.uhid))
+      );
+      if (alreadyActive) {
+        alert(
+          `Cannot check in: Patient "${appt.patient?.fullName}" (${appt.patient?.uhid || ''}) is already checked in with active Token #${
+            alreadyActive.formattedToken || 'T-' + alreadyActive.tokenNumber
+          } (Status: ${alreadyActive.status}). Same person cannot be checked in at the same time.`
+        );
+        return;
+      }
+    }
+
     const priority = checkInPriorityMap[appointmentId] || 'NORMAL';
     try {
       const res = await api.post('/checkin', {
@@ -192,7 +210,7 @@ export default function CheckInTokens() {
         <div>
           <div className="flex items-center space-x-2 text-xs font-semibold text-brand-600 uppercase tracking-wider mb-1">
             <Ticket className="w-4 h-4" />
-            <span>Phase 8 — Patient Intake</span>
+            <span>Patient Intake</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
             Check-In & Digital Tokens
@@ -432,13 +450,28 @@ export default function CheckInTokens() {
                         </select>
                       </td>
                       <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={() => handleCheckIn(appt.id)}
-                          className="inline-flex items-center px-3.5 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition-colors"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-                          Check In & Issue Token
-                        </button>
+                        {tokens.some(
+                          (t) =>
+                            ['WAITING', 'CALLED', 'IN_CONSULTATION'].includes(t.status) &&
+                            (t.patientId === appt.patientId ||
+                              (appt.patient?.uhid && t.patient?.uhid === appt.patient?.uhid))
+                        ) ? (
+                          <span
+                            className="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-300 rounded-lg cursor-not-allowed"
+                            title="Patient is already active in the waiting lounge"
+                          >
+                            <Clock className="w-3.5 h-3.5 mr-1 text-amber-600" />
+                            Already in Lounge
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleCheckIn(appt.id)}
+                            className="inline-flex items-center px-3.5 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition-colors"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                            Check In & Issue Token
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -548,6 +581,17 @@ export default function CheckInTokens() {
                               className="px-2 py-1 text-amber-700 hover:bg-amber-50 rounded-lg text-[11px] font-medium transition-colors border border-amber-200"
                             >
                               Skip
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`Cancel token #${t.formattedToken || t.tokenNumber} for ${t.patient?.fullName}?`)) {
+                                  handleStatusUpdate(t.id, 'CANCELLED');
+                                }
+                              }}
+                              title="Cancel duplicate/mistaken token"
+                              className="px-2 py-1 text-red-600 hover:bg-red-50 rounded-lg text-[11px] font-medium transition-colors border border-red-200"
+                            >
+                              Cancel
                             </button>
                           </div>
                         </td>
@@ -691,6 +735,7 @@ export default function CheckInTokens() {
       {/* Modals */}
       {showWalkInModal && (
         <WalkInTokenModal
+          existingTokens={tokens}
           onClose={() => setShowWalkInModal(false)}
           onSuccess={async (token) => {
             setShowWalkInModal(false);

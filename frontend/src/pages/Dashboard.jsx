@@ -75,17 +75,17 @@ export const Dashboard = () => {
   return (
     <div className="space-y-6 pb-12">
       {/* Universal Operational Header */}
-      <div className="bg-[#FFFCF7] dark:bg-[#0B1524] rounded-2xl p-6 border border-[#E6D9C6] dark:border-[#1E293B] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 backdrop-blur-sm relative overflow-hidden">
+      <div className="bg-white dark:bg-[#0B1524] rounded-2xl p-6 border border-slate-200 dark:border-[#1E293B] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 backdrop-blur-sm relative overflow-hidden">
         <div>
           <div className="flex items-center space-x-2.5 mb-1.5">
-            <h1 className="text-2xl font-black text-[#14243A] dark:text-[#F8FAFC] tracking-tight">
+            <h1 className="text-2xl font-black text-[#334155] dark:text-[#F8FAFC] tracking-tight">
               Welcome back, {user?.name || 'Staff Member'}
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#D99A32]/15 text-[#D99A32] dark:text-[#F9D054] border border-[#D99A32]/30 uppercase font-mono shadow-xs">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#0D9488]/10 text-[#0D9488] dark:text-[#1EAD86] border border-[#0D9488]/20 uppercase font-mono shadow-xs">
               {currentRole.replace('_', ' ')}
             </span>
           </div>
-          <p className="text-xs text-[#526174] dark:text-[#94A3B8] flex items-center gap-1.5">
+          <p className="text-xs text-[#64748B] dark:text-[#94A3B8] flex items-center gap-1.5">
             <span>Adyapan Central Hospital & Clinic</span>
             <span>•</span>
             <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
@@ -97,16 +97,16 @@ export const Dashboard = () => {
 
         {/* Live Date, Time & Refresh */}
         <div className="flex items-center space-x-3 self-start md:self-auto">
-          <div className="px-3.5 py-2 bg-[#FFF9F0] dark:bg-[#070D18] border border-[#E6D9C6] dark:border-[#1E293B] rounded-xl text-xs text-[#14243A] dark:text-[#F8FAFC] font-mono flex items-center space-x-2 shadow-xs">
-            <Clock className="w-3.5 h-3.5 text-[#526174] dark:text-slate-400" />
+          <div className="px-3.5 py-2 bg-[#F8FAFC] dark:bg-[#070D18] border border-slate-200 dark:border-[#1E293B] rounded-xl text-xs text-[#334155] dark:text-[#F8FAFC] font-mono flex items-center space-x-2 shadow-xs">
+            <Clock className="w-3.5 h-3.5 text-[#64748B] dark:text-slate-400" />
             <span>
               {currentTime.toLocaleTimeString('en-IN', {
                 hour: '2-digit',
                 minute: '2-digit',
               })}
             </span>
-            <span className="text-[#E6D9C6] dark:text-slate-700">|</span>
-            <span className="text-[#526174] dark:text-[#94A3B8]">
+            <span className="text-slate-300 dark:text-slate-700">|</span>
+            <span className="text-[#64748B] dark:text-[#94A3B8]">
               {currentTime.toLocaleDateString('en-IN', {
                 weekday: 'short',
                 day: 'numeric',
@@ -117,10 +117,10 @@ export const Dashboard = () => {
 
           <button
             onClick={fetchStats}
-            className="p-2 text-[#14243A] dark:text-[#F8FAFC] hover:bg-[#F7F1E7] dark:hover:bg-[#070D18] rounded-xl transition-all hover:scale-105 active:scale-95 border border-[#E6D9C6] dark:border-[#1E293B] bg-[#FFF9F0] dark:bg-[#0B1524] shadow-xs cursor-pointer"
+            className="p-2 text-[#334155] dark:text-[#F8FAFC] hover:bg-slate-100 dark:hover:bg-[#070D18] rounded-xl transition-all hover:scale-105 active:scale-95 border border-slate-200 dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#0B1524] shadow-xs cursor-pointer"
             title="Refresh Dashboard"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-[#D99A32]' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-[#0D9488]' : ''}`} />
           </button>
         </div>
       </div>
@@ -132,11 +132,11 @@ export const Dashboard = () => {
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="h-28 bg-[#FFF9F0] dark:bg-[#0B1524] rounded-2xl animate-pulse border border-[#E6D9C6] dark:border-[#1E293B]"
+                className="h-28 bg-[#F8FAFC] dark:bg-[#0B1524] rounded-2xl animate-pulse border border-slate-200 dark:border-[#1E293B]"
               />
             ))}
           </div>
-          <div className="h-64 bg-[#FFF9F0] dark:bg-[#0B1524] rounded-2xl animate-pulse border border-[#E6D9C6] dark:border-[#1E293B]" />
+          <div className="h-64 bg-[#F8FAFC] dark:bg-[#0B1524] rounded-2xl animate-pulse border border-slate-200 dark:border-[#1E293B]" />
         </div>
       ) : error ? (
         <div className="p-6 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-2xl text-rose-800 dark:text-rose-200 text-xs flex items-center justify-between">
@@ -154,15 +154,15 @@ export const Dashboard = () => {
       )}
 
       {/* Hospital Journey Pipeline Ribbon */}
-      <div className="bg-[#FFFCF7] dark:bg-[#0B1524] rounded-2xl p-5 border border-[#E6D9C6] dark:border-[#1E293B] shadow-sm mt-8">
+      <div className="bg-white dark:bg-[#0B1524] rounded-2xl p-5 border border-slate-200 dark:border-[#1E293B] shadow-sm mt-8">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <Activity className="w-4 h-4 text-[#D99A32] animate-pulse" />
-            <h3 className="text-xs font-bold text-[#14243A] dark:text-[#F8FAFC] uppercase tracking-wider">
+            <Activity className="w-4 h-4 text-[#0D9488] animate-pulse" />
+            <h3 className="text-xs font-bold text-[#334155] dark:text-[#F8FAFC] uppercase tracking-wider">
               Adyapan End-to-End Patient Journey Architecture
             </h3>
           </div>
-          <span className="text-[11px] text-[#526174] dark:text-[#94A3B8] font-mono">10 Connected Clinical Stages</span>
+          <span className="text-[11px] text-[#64748B] dark:text-[#94A3B8] font-mono">10 Connected Clinical Stages</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
@@ -179,11 +179,11 @@ export const Dashboard = () => {
             'Billing & Cashier',
           ].map((stage, idx, arr) => (
             <React.Fragment key={stage}>
-              <span className="px-2.5 py-1 rounded-lg bg-[#FFF9F0] dark:bg-[#070D18] text-[#14243A] dark:text-[#F8FAFC] border border-[#E6D9C6] dark:border-[#1E293B] text-[11px] font-medium transition-all hover:scale-[1.03] hover:border-[#D99A32]/60 cursor-default">
+              <span className="px-2.5 py-1 rounded-lg bg-[#F8FAFC] dark:bg-[#070D18] text-[#334155] dark:text-[#F8FAFC] border border-slate-200 dark:border-[#1E293B] text-[11px] font-medium transition-all hover:scale-[1.03] hover:border-[#0D9488]/60 cursor-default">
                 {stage}
               </span>
               {idx < arr.length - 1 && (
-                <span className="text-[#D99A32] font-bold text-xs">→</span>
+                <span className="text-[#0D9488] font-bold text-xs">→</span>
               )}
             </React.Fragment>
           ))}

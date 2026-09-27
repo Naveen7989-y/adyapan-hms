@@ -29,6 +29,7 @@ const STATUS_TABS = [
   { id: 'IN_CONSULTATION', label: 'In Consultation' },
   { id: 'COMPLETED', label: 'Completed' },
   { id: 'CANCELLED', label: 'Cancelled' },
+  { id: 'EXPIRED', label: 'Expired' },
 ];
 
 export const AppointmentsList = () => {
@@ -135,6 +136,7 @@ export const AppointmentsList = () => {
       COMPLETED: 'bg-slate-100 text-slate-700 border-slate-200',
       CANCELLED: 'bg-rose-50 text-rose-700 border-rose-200 line-through',
       NO_SHOW: 'bg-purple-50 text-purple-700 border-purple-200',
+      EXPIRED: 'bg-zinc-100 text-zinc-600 border-zinc-300 line-through',
     };
     return (
       <span
@@ -370,6 +372,7 @@ export const AppointmentsList = () => {
         <BookAppointmentModal
           onClose={() => setShowBookModal(false)}
           onBooked={fetchAppointments}
+          existingAppointmentsList={appointments}
         />
       )}
 

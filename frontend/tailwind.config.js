@@ -22,31 +22,31 @@ export default {
           900: '#0B1524',
           950: '#070D18',
         },
-        // 2. Gold Amber palette (Primary Brand Accent / CTAs / Highlights / Glow)
+        // 2. Pine Emerald palette (Primary Brand Accent / CTAs / Highlights / Glow - #05775A)
         amber: {
-          50: '#FFFDF5',
-          100: '#FEF9E7',
-          200: '#FDF0C6',
-          300: '#FCE395',
-          400: '#F9D054',
-          500: '#E5A919',
-          600: '#C68A0C',
-          700: '#9E6907',
-          800: '#7A5007',
-          900: '#5C3B07',
-          950: '#382202',
+          50: '#E6F7F2',
+          100: '#C2EDE1',
+          200: '#8BDBC4',
+          300: '#4EC5A4',
+          400: '#1EAD86',
+          500: '#0E946E',
+          600: '#05775A', // User specified brand accent
+          700: '#045F48',
+          800: '#034938',
+          900: '#023428',
+          950: '#011E17',
         },
         gold: {
-          50: '#FFFDF5',
-          100: '#FEF9E7',
-          200: '#FDF0C6',
-          300: '#FCE395',
-          400: '#F9D054',
-          500: '#E5A919',
-          600: '#C68A0C',
-          700: '#9E6907',
-          800: '#7A5007',
-          900: '#5C3B07',
+          50: '#E6F7F2',
+          100: '#C2EDE1',
+          200: '#8BDBC4',
+          300: '#4EC5A4',
+          400: '#1EAD86',
+          500: '#0E946E',
+          600: '#05775A',
+          700: '#045F48',
+          800: '#034938',
+          900: '#023428',
         },
         // 3. Warm Beige palette (Canvas / Background / Borders / Dividers)
         beige: {
@@ -61,75 +61,75 @@ export default {
           800: '#56493D',
           900: '#3D332B',
         },
-        // Harmonized brand alias (Exact Brand Color Palette)
+        // Harmonized brand alias (Exact Brand Color Palette - Light Theme)
         brand: {
-          'primary-bg': '#F7F1E7',
-          'secondary-bg': '#FFF9F0',
-          'primary-text': '#14243A',
-          'secondary-text': '#526174',
-          'primary-accent': '#D99A32',
-          'hover-accent': '#B97B20',
-          'borders': '#E6D9C6',
-          'cards': '#FFFCF7',
-          50: '#FAF8F5',
-          100: '#FEF9E7',
-          200: '#FDF0C6',
-          300: '#FCE395',
-          400: '#F9D054',
-          500: '#E5A919',
-          600: '#D99A32',
-          700: '#B97B20',
-          800: '#14243A',
-          900: '#0B1524',
-          950: '#070D18',
+          'primary-bg': '#F8FAFC',
+          'secondary-bg': '#FFFFFF',
+          'primary-text': '#334155',
+          'secondary-text': '#64748B',
+          'primary-accent': '#0D9488',
+          'hover-accent': '#0F766E',
+          'borders': '#E2E8F0',
+          'cards': '#FFFFFF',
+          50: '#F0FDFA',
+          100: '#CCFBF1',
+          200: '#99F6E4',
+          300: '#5EEAD4',
+          400: '#2DD4BF',
+          500: '#14B8A6',
+          600: '#0D9488',
+          700: '#0F766E',
+          800: '#334155',
+          900: '#1E293B',
+          950: '#0F172A',
         },
-        // Harmonize slate to bridge Warm Beige (light) & Deep Navy (dark)
+        // Harmonize slate to bridge Light Theme (Alabaster & Slate Gray) & Deep Navy (dark)
         slate: {
-          50: '#FAF8F5',   // Canvas warm beige
-          100: '#F4EFEA',  // Container warm beige
-          200: '#E8DFD5',  // Subtle warm border
-          300: '#D8CCC0',  // Accent border
-          400: '#9E978E',  // Muted stone
-          500: '#6B7280',  // Neutral secondary text
-          600: '#40526B',  // Slate navy medium
-          700: '#233752',  // Deep navy subtle
-          800: '#132238',  // Deep navy surface
-          900: '#0B1524',  // Deep navy primary
-          950: '#070D18',  // Deep navy midnight
+          50: '#F8FAFC',   // Canvas off-white / alabaster (60%)
+          100: '#F1F5F9',  // Subtle container
+          200: '#E2E8F0',  // Subtle slate border
+          300: '#CBD5E1',  // Divider / input border
+          400: '#94A3B8',  // Placeholder / muted text
+          500: '#64748B',  // Slate Gray secondary text
+          600: '#475569',  // Slate medium text
+          700: '#233752',  // Deep navy subtle (Dark theme compatibility)
+          800: '#132238',  // Deep navy surface (Dark theme compatibility)
+          900: '#0B1524',  // Deep navy primary (Dark theme compatibility)
+          950: '#070D18',  // Deep navy midnight (Dark theme compatibility)
         },
-        // Harmonize sky to Gold Amber for complete system-wide button and focus ring theme
+        // Harmonize sky to Teal Accent for complete system-wide button and focus ring theme
         sky: {
-          50: '#FFFDF5',
-          100: '#FEF9E7',
-          200: '#FDF0C6',
-          300: '#FCE395',
-          400: '#F9D054',
-          500: '#E5A919',
-          600: '#C68A0C',
-          700: '#9E6907',
-          800: '#7A5007',
-          900: '#5C3B07',
-          950: '#382202',
+          50: '#F0FDFA',
+          100: '#CCFBF1',
+          200: '#99F6E4',
+          300: '#5EEAD4',
+          400: '#2DD4BF',
+          500: '#14B8A6',
+          600: '#0D9488',
+          700: '#0F766E',
+          800: '#115E59',
+          900: '#134E4A',
+          950: '#042F2E',
         },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       boxShadow: {
-        'gold': '0 4px 14px 0 rgba(198, 138, 12, 0.25)',
-        'gold-lg': '0 10px 25px -3px rgba(198, 138, 12, 0.3)',
-        'gold-glow': '0 0 20px 2px rgba(198, 138, 12, 0.35)',
-        'gold-glow-lg': '0 0 35px 5px rgba(198, 138, 12, 0.5)',
+        'gold': '0 4px 14px 0 rgba(5, 119, 90, 0.25)',
+        'gold-lg': '0 10px 25px -3px rgba(5, 119, 90, 0.3)',
+        'gold-glow': '0 0 20px 2px rgba(5, 119, 90, 0.45)',
+        'gold-glow-lg': '0 0 35px 5px rgba(5, 119, 90, 0.6)',
         'navy': '0 4px 20px 0 rgba(11, 21, 36, 0.12)',
         'navy-lg': '0 12px 30px -4px rgba(11, 21, 36, 0.25)',
         'cyan-glow': '0 0 20px 2px rgba(6, 182, 212, 0.4)',
         'emerald-glow': '0 0 20px 2px rgba(16, 185, 129, 0.4)',
-        'hologram': '0 0 25px rgba(198, 138, 12, 0.15), inset 0 0 15px rgba(198, 138, 12, 0.1)',
+        'hologram': '0 0 25px rgba(5, 119, 90, 0.15), inset 0 0 15px rgba(5, 119, 90, 0.1)',
       },
       keyframes: {
         glowPulse: {
-          '0%, 100%': { opacity: '1', filter: 'drop-shadow(0 0 8px rgba(198, 138, 12, 0.6))' },
-          '50%': { opacity: '0.65', filter: 'drop-shadow(0 0 2px rgba(198, 138, 12, 0.2))' },
+          '0%, 100%': { opacity: '1', filter: 'drop-shadow(0 0 8px rgba(5, 119, 90, 0.6))' },
+          '50%': { opacity: '0.65', filter: 'drop-shadow(0 0 2px rgba(5, 119, 90, 0.2))' },
         },
         shimmer: {
           '0%': { transform: 'translateX(-100%)' },

@@ -140,7 +140,7 @@ export default function PharmacyDashboard() {
         <div>
           <div className="flex items-center space-x-2 text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">
             <Package className="w-4 h-4" />
-            <span>Phase 12 — In-House Pharmacy Desk</span>
+            <span>In-House Pharmacy Desk</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
             Pharmacy & Inventory Management

@@ -209,9 +209,6 @@ export default function BillingDashboard() {
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
               Billing & Invoicing
             </h1>
-            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-700 border border-brand-200">
-              Phase 13
-            </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Generate patient invoices, collect payments across multiple modes, and issue official receipts.

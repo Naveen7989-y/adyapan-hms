@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
 import HeartbeatLogo from '../components/common/HeartbeatLogo';
 import ThemeToggle from '../components/common/ThemeToggle';
+import stethoscopeFamilyImg from '../assets/login-stethoscope-family.png';
 import {
-  Activity,
   Lock,
   Mail,
   AlertCircle,
@@ -14,93 +14,21 @@ import {
   UserCheck,
   Stethoscope,
   Heart,
-  Baby,
-  Bone,
-  Smile,
-  Brain,
   ShieldCheck,
-  User,
+  Check,
+  Sparkles,
+  Activity,
 } from 'lucide-react';
 
-const STAFF_ACCOUNTS = [
-  { role: 'Hospital Admin', email: 'admin@adyapan.com', desc: 'Full System Ops', color: 'border-amber-400 text-amber-900 bg-amber-50' },
-  { role: 'Receptionist', email: 'reception@adyapan.com', desc: 'Front Desk & Triage', color: 'border-navy-300 text-navy-800 bg-navy-50' },
-  { role: 'Pharmacist', email: 'pharmacist@adyapan.com', desc: 'Dispensary & Stock', color: 'border-amber-300 text-amber-800 bg-amber-50/60' },
-  { role: 'Accountant', email: 'accounts@adyapan.com', desc: 'Billing & Cashier', color: 'border-beige-300 text-beige-800 bg-beige-100' },
-  { role: 'Nurse Assistant', email: 'nurse@adyapan.com', desc: 'Vitals & Staging', color: 'border-teal-300 text-teal-800 bg-teal-50' },
-  { role: 'Super Admin', email: 'superadmin@adyapan.com', desc: 'Multi-hospital Lead', color: 'border-navy-700 text-amber-300 bg-navy-900' },
-];
-
-const DOCTOR_CATEGORIES = [
-  {
-    category: 'General Medicine',
-    name: 'Dr. Rajesh Sharma',
-    email: 'doctor.sharma@adyapan.com',
-    room: 'Room 101',
-    code: 'GEN',
-    icon: Stethoscope,
-    color: 'border-emerald-300 text-emerald-900 bg-emerald-50/80 hover:bg-emerald-100/70',
-    badge: 'bg-emerald-100 text-emerald-800',
-  },
-  {
-    category: 'Cardiology',
-    name: 'Dr. Priya Patel',
-    email: 'doctor.cardio@adyapan.com',
-    room: 'Room 102',
-    code: 'CARD',
-    icon: Heart,
-    color: 'border-rose-300 text-rose-900 bg-rose-50/80 hover:bg-rose-100/70',
-    badge: 'bg-rose-100 text-rose-800',
-  },
-  {
-    category: 'Pediatrics',
-    name: 'Dr. Vikram Rao',
-    email: 'doctor.pediatric@adyapan.com',
-    room: 'Room 103',
-    code: 'PED',
-    icon: Baby,
-    color: 'border-amber-300 text-amber-900 bg-amber-50/80 hover:bg-amber-100/70',
-    badge: 'bg-amber-100 text-amber-800',
-  },
-  {
-    category: 'Orthopedics',
-    name: 'Dr. Suresh Menon',
-    email: 'doctor.ortho@adyapan.com',
-    room: 'Room 104',
-    code: 'ORTH',
-    icon: Bone,
-    color: 'border-blue-300 text-blue-900 bg-blue-50/80 hover:bg-blue-100/70',
-    badge: 'bg-blue-100 text-blue-800',
-  },
-  {
-    category: 'Dental Care',
-    name: 'Dr. Neha Kapoor',
-    email: 'doctor.dental@adyapan.com',
-    room: 'Room 105',
-    code: 'DENT',
-    icon: Smile,
-    color: 'border-teal-300 text-teal-900 bg-teal-50/80 hover:bg-teal-100/70',
-    badge: 'bg-teal-100 text-teal-800',
-  },
-  {
-    category: 'Neurology',
-    name: 'Dr. Arvind Joshi',
-    email: 'doctor.neuro@adyapan.com',
-    room: 'Room 106',
-    code: 'NEU',
-    icon: Brain,
-    color: 'border-purple-300 text-purple-900 bg-purple-50/80 hover:bg-purple-100/70',
-    badge: 'bg-purple-100 text-purple-800',
-  },
-];
-
 export const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // mode: 'doctor' (image on RIGHT) | 'quick-role' (image on LEFT)
+  const [mode, setMode] = useState('doctor');
+  const [email, setEmail] = useState('doctor.sharma@adyapan.com');
+  const [password, setPassword] = useState('Password123!');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [quickTab, setQuickTab] = useState('doctors'); // 'doctors' | 'staff'
-  const [doctorsList, setDoctorsList] = useState(DOCTOR_CATEGORIES);
+  const [splitParting, setSplitParting] = useState(false);
+  const [authenticatedUser, setAuthenticatedUser] = useState(null);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -108,60 +36,20 @@ export const Login = () => {
 
   const from = location.state?.from?.pathname || '/dashboard';
 
-  // Dynamically load active doctors from the hospital database
-  useEffect(() => {
-    const fetchQuickDoctors = async () => {
-      try {
-        const res = await api.get('/auth/quick-doctors');
-        const docs = res.data?.data || res.data || [];
-        if (Array.isArray(docs) && docs.length > 0) {
-          const mapped = docs.map((doc) => {
-            const cat = (doc.category || '').toUpperCase();
-            let icon = Stethoscope;
-            let color = 'border-emerald-300 text-emerald-900 bg-emerald-50/80 hover:bg-emerald-100/70';
-            let badge = 'bg-emerald-100 text-emerald-800';
-
-            if (cat.includes('CARD')) {
-              icon = Heart;
-              color = 'border-rose-300 text-rose-900 bg-rose-50/80 hover:bg-rose-100/70';
-              badge = 'bg-rose-100 text-rose-800';
-            } else if (cat.includes('PED')) {
-              icon = Baby;
-              color = 'border-amber-300 text-amber-900 bg-amber-50/80 hover:bg-amber-100/70';
-              badge = 'bg-amber-100 text-amber-800';
-            } else if (cat.includes('ORTH')) {
-              icon = Bone;
-              color = 'border-blue-300 text-blue-900 bg-blue-50/80 hover:bg-blue-100/70';
-              badge = 'bg-blue-100 text-blue-800';
-            } else if (cat.includes('DENT')) {
-              icon = Smile;
-              color = 'border-teal-300 text-teal-900 bg-teal-50/80 hover:bg-teal-100/70';
-              badge = 'bg-teal-100 text-teal-800';
-            } else if (cat.includes('NEU')) {
-              icon = Brain;
-              color = 'border-purple-300 text-purple-900 bg-purple-50/80 hover:bg-purple-100/70';
-              badge = 'bg-purple-100 text-purple-800';
-            }
-
-            return {
-              category: doc.category,
-              name: doc.name,
-              email: doc.email,
-              room: doc.room,
-              code: doc.code,
-              icon,
-              color,
-              badge,
-            };
-          });
-          setDoctorsList(mapped);
-        }
-      } catch (err) {
-        console.warn('Using seeded doctor categories fallback:', err);
-      }
-    };
-    fetchQuickDoctors();
-  }, []);
+  // Mode change handler:
+  // - Doctor mode -> Image moves to RIGHT
+  // - Quick Role Sign mode -> Image moves to LEFT
+  const handleSelectMode = (newMode) => {
+    setMode(newMode);
+    setError(null);
+    if (newMode === 'doctor') {
+      setEmail('doctor.sharma@adyapan.com');
+      setPassword('Password123!');
+    } else {
+      setEmail('admin@adyapan.com');
+      setPassword('Password123!');
+    }
+  };
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -169,214 +57,540 @@ export const Login = () => {
     setLoading(true);
 
     try {
-      await login(email, password);
-      navigate(from, { replace: true });
+      const user = await login(email, password);
+      setAuthenticatedUser(user);
+
+      // Trigger the true vertical middle-split and smooth entrance animation!
+      setSplitParting(true);
+
+      // Allow the cinematic vertical split, entrance animation, and welcome reveal to play
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 2400);
     } catch (err) {
       setError(err.message || 'Login failed. Please check credentials.');
-    } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[#F7F1E7] dark:bg-[#070D18] bg-cyber-grid flex flex-col justify-center py-6 sm:py-10 px-3 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-300">
-      {/* Ambient background glow orbs */}
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#D99A32]/15 dark:bg-amber-400/10 rounded-full blur-3xl pointer-events-none animate-float"></div>
-      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-[#14243A]/5 dark:bg-amber-500/5 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+  const isImageLeft = mode === 'quick-role';
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-lg mb-3 relative z-10 px-2 flex justify-between items-center">
+  // Helper to determine display greetings
+  const displayName =
+    authenticatedUser?.name ||
+    (mode === 'doctor' ? 'Dr. Sharma' : 'Administrator');
+
+  const displayRole =
+    authenticatedUser?.role?.toUpperCase() ||
+    (mode === 'doctor' ? 'CHIEF PEDIATRICIAN' : 'CLINICAL OPERATIONS HQ');
+
+  // =========================================================================
+  // BASE LOGIN PAGE UI (Rendered interactive or inside split shutters)
+  // =========================================================================
+  const renderLoginContent = (isStatic = false) => (
+    <div
+      className={`w-full h-full min-h-screen bg-[#F8FAFC] dark:bg-[#070D18] bg-cyber-grid flex flex-col justify-between p-3 sm:p-5 lg:p-6 relative overflow-hidden transition-colors duration-300 select-none ${
+        isStatic ? 'pointer-events-none' : ''
+      }`}
+    >
+      {/* Ambient background glow orbs */}
+      <div className="absolute -top-32 -left-32 w-[30rem] h-[30rem] bg-teal-400/15 dark:bg-amber-400/10 rounded-full blur-3xl pointer-events-none animate-float"></div>
+      <div className="absolute -bottom-32 -right-32 w-[32rem] h-[32rem] bg-blue-500/10 dark:bg-amber-500/10 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+
+      {/* Top Navigation Bar */}
+      <div className="w-full max-w-5xl mx-auto relative z-10 px-2 flex justify-between items-center flex-shrink-0">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#14243A] dark:text-slate-200 hover:text-[#B97B20] dark:hover:text-amber-400 transition-colors bg-[#FFF9F0] dark:bg-navy-900/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-[#E6D9C6] dark:border-navy-700 shadow-2xs group"
+          tabIndex={isStatic ? -1 : 0}
+          className="inline-flex items-center gap-2 text-xs font-bold text-[#334155] dark:text-slate-200 hover:text-teal-600 dark:hover:text-amber-400 transition-colors bg-white/90 dark:bg-navy-900/80 backdrop-blur-sm px-3.5 py-1.5 rounded-xl border border-slate-200/90 dark:border-navy-700 shadow-2xs group"
         >
-          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform text-teal-600 dark:text-amber-400" />
           <span>← Back to Public Home</span>
         </Link>
         <ThemeToggle size="sm" showLabel />
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-lg text-center relative z-10 px-2">
-        <div className="mb-3">
-          <HeartbeatLogo size="lg" />
-        </div>
-        <h2 className="text-2xl sm:text-3xl font-black text-[#14243A] dark:text-white tracking-tight">
-          ADYAPAN HOSPITAL
-        </h2>
-        <p className="mt-1 text-xs sm:text-sm font-medium text-[#526174] dark:text-slate-400 flex items-center justify-center gap-1.5">
-          <span>Queue & Appointment Management Platform</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-        </p>
-      </div>
+      {/* Main Two-Column Card Container */}
+      <div className="w-full max-w-lg lg:max-w-5xl mx-auto relative z-10 flex-1 flex items-center justify-center my-auto min-h-0 py-2 sm:py-4">
+        <div className="w-full h-full max-h-none lg:max-h-[580px] flex flex-col lg:flex-row relative">
+          {/* ========================================================================= */}
+          {/* IMAGE PANEL (Full Cover Background) - Visible ONLY in Laptop / Desktop mode */}
+          {/* ========================================================================= */}
+          <div
+            className={`hidden lg:flex w-full lg:w-1/2 relative overflow-hidden flex-col justify-between p-6 sm:p-8 min-h-[220px] lg:min-h-0 shadow-2xl border border-slate-200/90 dark:border-navy-700 rounded-3xl lg:rounded-none transition-all duration-500 ${
+              isImageLeft
+                ? 'lg:order-1 lg:rounded-l-3xl lg:border-r-0'
+                : 'lg:order-2 lg:rounded-r-3xl lg:border-l-0'
+            }`}
+          >
+            {/* The Stethoscope & Family Image as Full Cover Background */}
+            <img
+              src={stethoscopeFamilyImg}
+              alt="Adyapan Hospital Healthcare"
+              className="absolute inset-0 w-full h-full object-cover object-center transform transition-transform duration-1000 hover:scale-105 select-none pointer-events-none"
+            />
+            {/* Soft Ambient Overlay Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/15 to-slate-950/40 pointer-events-none"></div>
 
-      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-lg px-2 sm:px-0 relative z-10">
-        <div className="hms-card bg-[#FFFCF7]/95 dark:bg-[#0B1524]/95 backdrop-blur-md py-6 px-4 shadow-2xl rounded-2xl sm:rounded-3xl sm:py-7 sm:px-9 border border-[#E6D9C6] dark:border-navy-700 relative">
-          <form className="space-y-4" onSubmit={handleSubmit} autoComplete="off">
-            {error && (
-              <div className="rounded-xl bg-rose-50 dark:bg-rose-950/40 p-3.5 border border-rose-200 dark:border-rose-800 flex items-start space-x-3 animate-in fade-in">
-                <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
-                <div className="text-xs text-rose-800 dark:text-rose-200 font-medium leading-relaxed">
-                  {error}
+            {/* Top Branding inside Image Hero */}
+            <div className="relative z-10 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 bg-slate-950/40 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-white/20 shadow-md">
+                <HeartbeatLogo size="sm" glow />
+                <div>
+                  <div className="text-xs font-black tracking-wider text-white uppercase flex items-center gap-1.5">
+                    <span>Adyapan Hospital</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  </div>
+                  <div className="text-[10px] font-medium text-slate-200">
+                    Smart Queue & OPD Operations
+                  </div>
                 </div>
               </div>
-            )}
 
-            <div>
-              <label className="block text-xs font-bold text-[#14243A] dark:text-slate-200 uppercase tracking-wider mb-1">
-                Email Address
-              </label>
-              <div className="relative rounded-lg shadow-2xs">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#526174] dark:text-slate-400 z-10">
-                  <Mail className="w-4 h-4" />
-                </div>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="off"
-                  className="hms-input has-left-icon block w-full !pl-11 pr-3.5 py-2.5 font-medium relative z-0"
-                  placeholder="staff@adyapan.com"
-                />
-              </div>
+              {/* Dynamic Mode Badge */}
+              <span
+                className={`text-[11px] font-extrabold uppercase px-3 py-1 rounded-full border shadow-md backdrop-blur-md flex items-center gap-1.5 text-white ${
+                  mode === 'doctor'
+                    ? 'bg-emerald-600/80 border-emerald-400/40'
+                    : 'bg-amber-600/80 border-amber-400/40'
+                }`}
+              >
+                {mode === 'doctor' ? (
+                  <>
+                    <Stethoscope className="w-3.5 h-3.5 text-white" />
+                    <span>Doctor Portal</span>
+                  </>
+                ) : (
+                  <>
+                    <UserCheck className="w-3.5 h-3.5 text-white" />
+                    <span>Staff Portal</span>
+                  </>
+                )}
+              </span>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#14243A] dark:text-slate-200 uppercase tracking-wider mb-1">
-                Password
-              </label>
-              <div className="relative rounded-lg shadow-2xs">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#526174] dark:text-slate-400 z-10">
-                  <Lock className="w-4 h-4" />
-                </div>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                  className="hms-input has-left-icon block w-full !pl-11 pr-3.5 py-2.5 font-mono relative z-0"
-                  placeholder="••••••••"
-                />
+            {/* Bottom Glass Caption on Image */}
+            <div className="relative z-10 mt-auto">
+              <div className="inline-flex items-center gap-2 bg-slate-950/50 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/20 text-white text-xs font-semibold shadow-lg">
+                <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400 animate-pulse" />
+                <span>Caring for Every Family • 24/7 Digital OPD</span>
               </div>
             </div>
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="hms-btn-primary w-full py-3 px-4 shadow-sm font-extrabold text-sm transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-[#14243A] border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <>
-                  <span>Sign In to Hospital Portal</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Categorized Quick Role Directory Reference Section */}
-          <div className="mt-6 pt-5 border-t border-[#E6D9C6] dark:border-navy-800">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
-              <div className="flex items-center space-x-1.5">
-                <UserCheck className="w-4 h-4 text-[#D99A32] flex-shrink-0" />
-                <span className="text-xs font-bold text-[#14243A] dark:text-slate-200 uppercase tracking-wider">
-                  Role Directory Reference
+          {/* ========================================================================= */}
+          {/* FORM PANEL                                                                */}
+          {/* ========================================================================= */}
+          <div
+            className={`w-full lg:w-1/2 p-6 sm:p-8 lg:p-10 flex flex-col justify-between overflow-y-auto bg-white/95 dark:bg-[#0B1524]/95 backdrop-blur-xl shadow-2xl border border-slate-200/90 dark:border-navy-700 rounded-3xl lg:rounded-none transition-all duration-500 ${
+              isImageLeft
+                ? 'lg:order-2 lg:rounded-r-3xl lg:border-l-0'
+                : 'lg:order-1 lg:rounded-l-3xl lg:border-r-0'
+            }`}
+          >
+            <div>
+              {/* Mobile/Tablet Hospital Brand Header (Visible only when image hero is hidden on other devices) */}
+              <div className="lg:hidden flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-navy-800">
+                <div className="flex items-center gap-2">
+                  <HeartbeatLogo size="sm" glow />
+                  <div>
+                    <div className="text-xs font-black tracking-wider text-slate-800 dark:text-white uppercase flex items-center gap-1.5">
+                      <span>Adyapan Hospital</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    </div>
+                    <div className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                      Smart Queue & OPD Operations
+                    </div>
+                  </div>
+                </div>
+                <span
+                  className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border shadow-2xs flex items-center gap-1 ${
+                    mode === 'doctor'
+                      ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20'
+                      : 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20'
+                  }`}
+                >
+                  {mode === 'doctor' ? (
+                    <>
+                      <Stethoscope className="w-3 h-3" />
+                      <span>Doctor</span>
+                    </>
+                  ) : (
+                    <>
+                      <UserCheck className="w-3 h-3" />
+                      <span>Staff</span>
+                    </>
+                  )}
                 </span>
               </div>
 
-              {/* Tab Selector */}
-              <div className="grid grid-cols-2 bg-[#FFF9F0] dark:bg-navy-950 p-0.5 rounded-lg border border-[#E6D9C6] dark:border-navy-800 text-xs w-full sm:w-auto">
+              {/* Header Title */}
+              <div className="mb-4 sm:mb-5">
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white tracking-tight">
+                  Hospital Portal Sign In
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  Select your role mode to access your medical workstation
+                </p>
+              </div>
+
+              {/* Mode Toggle Bar: Doctor vs Quick Role */}
+              <div className="grid grid-cols-2 p-1.5 bg-slate-100 dark:bg-navy-900 rounded-2xl mb-4 sm:mb-5 border border-slate-200 dark:border-navy-700 shadow-inner">
                 <button
                   type="button"
-                  onClick={() => setQuickTab('doctors')}
-                  className={`px-2 py-1 rounded-md font-bold transition-all text-center text-[11px] sm:text-xs truncate ${
-                    quickTab === 'doctors'
-                      ? 'bg-[#FFFCF7] text-[#14243A] shadow-xs dark:bg-navy-800 dark:text-amber-300'
-                      : 'text-[#526174] hover:text-[#14243A] dark:text-slate-400 dark:hover:text-slate-200'
+                  tabIndex={isStatic ? -1 : 0}
+                  onClick={() => handleSelectMode('doctor')}
+                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all duration-300 ${
+                    mode === 'doctor'
+                      ? 'bg-white dark:bg-emerald-700 text-emerald-800 dark:text-white shadow-md'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  Doctors ({doctorsList.length})
+                  <Stethoscope className="w-4 h-4 text-emerald-600 dark:text-emerald-300 flex-shrink-0" />
+                  <span>Doctor Login</span>
                 </button>
+
                 <button
                   type="button"
-                  onClick={() => setQuickTab('staff')}
-                  className={`px-2 py-1 rounded-md font-bold transition-all text-center text-[11px] sm:text-xs truncate ${
-                    quickTab === 'staff'
-                      ? 'bg-[#FFFCF7] text-[#14243A] shadow-xs dark:bg-navy-800 dark:text-amber-300'
-                      : 'text-[#526174] hover:text-[#14243A] dark:text-slate-400 dark:hover:text-slate-200'
+                  tabIndex={isStatic ? -1 : 0}
+                  onClick={() => handleSelectMode('quick-role')}
+                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all duration-300 ${
+                    mode === 'quick-role'
+                      ? 'bg-white dark:bg-amber-600 text-amber-900 dark:text-white shadow-md'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  Staff Roles ({STAFF_ACCOUNTS.length})
+                  <UserCheck className="w-4 h-4 text-amber-600 dark:text-amber-300 flex-shrink-0" />
+                  <span>Quick Role Sign</span>
                 </button>
               </div>
+
+              {/* Login Form */}
+              <form className="space-y-3.5 sm:space-y-4" onSubmit={handleSubmit} autoComplete="off">
+                {error && (
+                  <div className="rounded-xl bg-rose-50 dark:bg-rose-950/40 p-3 border border-rose-200 dark:border-rose-800 flex items-start space-x-2.5 animate-in fade-in">
+                    <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
+                    <div className="text-xs text-rose-800 dark:text-rose-200 font-medium leading-relaxed">
+                      {error}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-1">
+                    Email Address
+                  </label>
+                  <div className="relative rounded-xl shadow-2xs">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 z-10">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="email"
+                      required
+                      tabIndex={isStatic ? -1 : 0}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="off"
+                      className="hms-input has-left-icon block w-full !pl-11 pr-3 py-2.5 text-sm font-medium relative z-0 rounded-xl"
+                      placeholder={mode === 'doctor' ? 'doctor.sharma@adyapan.com' : 'admin@adyapan.com'}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-1">
+                    Password
+                  </label>
+                  <div className="relative rounded-xl shadow-2xs">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 z-10">
+                      <Lock className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="password"
+                      required
+                      tabIndex={isStatic ? -1 : 0}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
+                      className="hms-input has-left-icon block w-full !pl-11 pr-3 py-2.5 text-sm font-mono relative z-0 rounded-xl"
+                      placeholder="••••••••"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  tabIndex={isStatic ? -1 : 0}
+                  disabled={loading || splitParting}
+                  className={`w-full py-2.5 sm:py-3 px-4 rounded-xl shadow-md font-extrabold text-sm transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 flex items-center justify-center gap-2 text-white ${
+                    mode === 'doctor'
+                      ? 'bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 shadow-teal-500/20'
+                      : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 shadow-amber-500/20'
+                  }`}
+                >
+                  {loading || splitParting ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <span>{mode === 'doctor' ? 'Sign In as Doctor' : 'Sign In to Hospital Portal'}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </form>
             </div>
 
-            {/* TAB 1: DOCTORS BY SPECIALTY */}
-            {quickTab === 'doctors' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 animate-in fade-in duration-200">
-                {doctorsList.map((doc) => {
-                  const IconComp = doc.icon;
-                  const isSelected = email === doc.email;
-                  return (
-                    <div
-                      key={doc.email}
-                      className={`text-left p-2.5 rounded-xl border text-xs transition-all relative select-text cursor-default ${
-                        doc.color
-                      } ${isSelected ? 'ring-2 ring-amber-500 shadow-md font-bold' : ''}`}
-                    >
-                      <div className="flex items-center justify-between gap-1 mb-1">
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider ${doc.badge}`}>
-                          {doc.category}
-                        </span>
-                        <span className="text-[10px] font-mono text-slate-500 font-bold">
-                          {doc.room}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-1.5">
-                        <IconComp className="w-3.5 h-3.5 text-navy-800 flex-shrink-0" />
-                        <div className="font-bold text-navy-900 truncate text-[11px]">{doc.name}</div>
-                      </div>
-                      <div className="text-[10px] text-slate-500 font-mono truncate mt-0.5 select-all">
-                        {doc.email}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* TAB 2: STAFF ROLES */}
-            {quickTab === 'staff' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 animate-in fade-in duration-200">
-                {STAFF_ACCOUNTS.map((acc) => {
-                  const isSelected = email === acc.email;
-                  return (
-                    <div
-                      key={acc.email}
-                      className={`text-left p-2.5 rounded-xl border text-xs font-semibold transition-all relative select-text cursor-default ${
-                        acc.color
-                      } ${isSelected ? 'ring-2 ring-amber-500 shadow-md' : ''}`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-navy-900 text-xs">{acc.role}</span>
-                        <span className="text-[10px] opacity-75 font-normal">{acc.desc}</span>
-                      </div>
-                      <div className="text-[10px] text-slate-500 font-mono truncate mt-0.5 select-all">
-                        {acc.email}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            {/* Clean Bottom Security Notice */}
+            <div className="mt-4 pt-3 border-t border-slate-200/60 dark:border-navy-800 flex items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">
+              <ShieldCheck className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+              <span>Protected by Adyapan RBAC & Secure JWT</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
+
+  // =========================================================================
+  // PORTAL & WELCOME SEQUENCE (Revealed behind the splitting login page)
+  // Features a staged smooth entrance animation BEFORE showing Welcome card
+  // =========================================================================
+  const renderPortalAndWelcome = () => (
+    <div className="fixed inset-0 z-10 flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#040A14] via-[#071324] to-[#040912] select-none">
+      {/* Background Cyber Grid & Medical Ambient Glow */}
+      <div className="absolute inset-0 bg-cyber-grid opacity-30 dark:opacity-40 pointer-events-none" />
+      <div className="absolute -top-24 -left-24 w-[36rem] h-[36rem] bg-teal-500/15 rounded-full blur-3xl pointer-events-none animate-pulse" />
+      <div className="absolute -bottom-24 -right-24 w-[36rem] h-[36rem] bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-pulse" />
+
+      {/* ========================================================================= */}
+      {/* 1. SMOOTH ENTRANCE ANIMATION (Shockwaves, Iris Aperture, Beacon Rings)     */}
+      {/* ========================================================================= */}
+
+      {/* Primary Expanding Sonic/Light Shockwave Ring */}
+      <motion.div
+        initial={{ scale: 0.05, opacity: 0 }}
+        animate={{ scale: [0.05, 1.6, 3.2], opacity: [0, 0.85, 0] }}
+        transition={{ duration: 1.15, delay: 0.08, ease: 'easeOut' }}
+        className="absolute w-64 h-64 rounded-full border-2 border-teal-400/80 shadow-[0_0_60px_rgba(45,212,191,0.6)] pointer-events-none"
+      />
+
+      {/* Secondary Harmonic Ring with Cyan Aura */}
+      <motion.div
+        initial={{ scale: 0.05, opacity: 0 }}
+        animate={{ scale: [0.05, 1.4, 2.6], opacity: [0, 0.7, 0] }}
+        transition={{ duration: 1.25, delay: 0.22, ease: 'easeOut' }}
+        className="absolute w-80 h-80 rounded-full border border-cyan-400/50 shadow-[0_0_50px_rgba(34,211,238,0.5)] pointer-events-none"
+      />
+
+      {/* Third Deep Medical Emerald Wave */}
+      <motion.div
+        initial={{ scale: 0.05, opacity: 0 }}
+        animate={{ scale: [0.05, 1.2, 2.0], opacity: [0, 0.6, 0] }}
+        transition={{ duration: 1.35, delay: 0.35, ease: 'easeOut' }}
+        className="absolute w-96 h-96 rounded-full border border-emerald-400/40 shadow-[0_0_40px_rgba(52,211,153,0.4)] pointer-events-none"
+      />
+
+      {/* Central Illuminated Aperture Burst */}
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: [0, 1.6, 1.1], opacity: [0, 0.9, 0.45] }}
+        transition={{ duration: 1.0, delay: 0.12, ease: 'easeOut' }}
+        className="absolute w-88 h-88 rounded-full bg-gradient-to-r from-teal-500/25 via-emerald-400/30 to-cyan-500/25 blur-3xl pointer-events-none"
+      />
+
+      {/* Outer Gyroscope Rotating Beacon Ring */}
+      <motion.div
+        initial={{ scale: 0.3, opacity: 0, rotate: 0 }}
+        animate={{ scale: 1, opacity: [0, 0.75, 0.5], rotate: 180 }}
+        transition={{ duration: 1.6, delay: 0.18, ease: 'easeOut' }}
+        className="absolute w-[440px] h-[440px] rounded-full border border-dashed border-teal-400/40 pointer-events-none"
+      />
+
+      {/* Inner Counter-Rotating Gyroscope Beacon */}
+      <motion.div
+        initial={{ scale: 0.4, opacity: 0, rotate: 0 }}
+        animate={{ scale: 1, opacity: [0, 0.65, 0.35], rotate: -180 }}
+        transition={{ duration: 1.8, delay: 0.25, ease: 'easeOut' }}
+        className="absolute w-[360px] h-[360px] rounded-full border border-dotted border-emerald-400/40 pointer-events-none"
+      />
+
+      {/* Horizontal Telemetry Light Flares */}
+      <motion.div
+        initial={{ scaleX: 0, opacity: 0 }}
+        animate={{ scaleX: [0, 1.5, 1], opacity: [0, 0.8, 0.3] }}
+        transition={{ duration: 0.9, delay: 0.28, ease: 'easeOut' }}
+        className="absolute w-[600px] h-[1px] bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_25px_#2dd4bf] pointer-events-none"
+      />
+
+      {/* ========================================================================= */}
+      {/* 2. GRAND ENTRANCE: "Welcome to Adyapan HMS" CARD                           */}
+      {/* Staged entrance emerges smoothly from aperture after entrance sequence   */}
+      {/* ========================================================================= */}
+      <motion.div
+        initial={{ scale: 0.76, opacity: 0, y: 38, filter: 'blur(10px)' }}
+        animate={{ scale: 1, opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{
+          delay: 0.55,
+          duration: 0.75,
+          type: 'spring',
+          damping: 22,
+          stiffness: 165,
+        }}
+        className="relative z-20 p-8 sm:p-10 rounded-3xl bg-slate-900/90 border-2 border-teal-400/60 backdrop-blur-2xl shadow-[0_0_90px_rgba(13,148,136,0.5),0_25px_60px_rgba(0,0,0,0.7)] text-center max-w-lg mx-4 overflow-hidden"
+      >
+        {/* Interior Accent Flare Orbs */}
+        <div className="absolute -top-12 -right-12 w-44 h-44 bg-teal-500/25 rounded-full blur-2xl animate-pulse pointer-events-none"></div>
+        <div className="absolute -bottom-12 -left-12 w-44 h-44 bg-emerald-500/20 rounded-full blur-2xl animate-pulse pointer-events-none"></div>
+
+        {/* Central Heartbeat Emblem with Active Ping */}
+        <div className="mb-4 flex justify-center relative">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.65, type: 'spring', damping: 15 }}
+            className="relative"
+          >
+            <HeartbeatLogo size="xl" glow withPing />
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+              className="absolute -inset-3.5 rounded-full border-2 border-dashed border-teal-400/50 pointer-events-none"
+            />
+          </motion.div>
+        </div>
+
+        {/* Authentication Verified Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.75, duration: 0.4 }}
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-mono font-extrabold border border-emerald-400/40 mb-3 tracking-widest uppercase shadow-[0_0_15px_rgba(52,211,153,0.3)]"
+        >
+          <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
+          <span>AUTHENTICATION VERIFIED</span>
+        </motion.div>
+
+        {/* Welcoming Headline */}
+        <motion.h2
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.85, duration: 0.45 }}
+          className="text-2xl sm:text-3xl font-black text-white tracking-tight"
+        >
+          <span>Welcome to </span>
+          <span className="bg-gradient-to-r from-teal-300 via-emerald-300 to-cyan-200 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(45,212,191,0.4)]">
+            Adyapan HMS
+          </span>
+        </motion.h2>
+
+        {/* Personalized User & Role Telemetry */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.95, duration: 0.4 }}
+          className="mt-2 text-xs sm:text-sm text-teal-200/90 font-medium tracking-wide flex items-center justify-center gap-2 flex-wrap"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-teal-400 flex-shrink-0" />
+          <span className="font-semibold text-white">{displayName}</span>
+          <span className="text-teal-400/60">•</span>
+          <span className="font-mono text-teal-300 text-xs px-2 py-0.5 rounded-md bg-teal-950/50 border border-teal-500/30">
+            {displayRole}
+          </span>
+        </motion.div>
+
+        {/* Dynamic Holographic Progress Bar */}
+        <div className="w-64 sm:w-72 h-2.5 bg-slate-800/90 rounded-full mt-6 mx-auto overflow-hidden border border-teal-500/40 p-0.5 shadow-inner">
+          <motion.div
+            initial={{ width: '0%' }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 1.25, delay: 0.85, ease: [0.4, 0, 0.2, 1] }}
+            className="h-full rounded-full bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-300 shadow-[0_0_18px_#34d399]"
+          />
+        </div>
+
+        {/* Initializing Subtitle */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.1 }}
+          className="text-[11px] font-mono text-slate-400 mt-2.5 tracking-wider uppercase flex items-center justify-center gap-2"
+        >
+          <Activity className="w-3 h-3 text-teal-400 animate-pulse" />
+          <span>Synchronizing Clinical Workstation...</span>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+
+  // =========================================================================
+  // MAIN RENDER WITH TRUE VERTICAL SPLIT DOWN THE MIDDLE
+  // =========================================================================
+  return (
+    <div className="relative w-full min-h-screen overflow-hidden">
+      {!splitParting ? (
+        // Normal interactive view before login
+        renderLoginContent(false)
+      ) : (
+        // Cinematic vertical middle-split + smooth entrance portal
+        <div className="fixed inset-0 overflow-hidden select-none">
+          {/* 1. Underlying Portal Room with Smooth Entrance & Welcome Reveal */}
+          {renderPortalAndWelcome()}
+
+          {/* 2. Left Half of the Login Page (Splits to the Left) */}
+          <motion.div
+            initial={{ x: 0 }}
+            animate={{ x: '-105%' }}
+            transition={{ duration: 1.1, ease: [0.77, 0, 0.175, 1] }}
+            className="fixed inset-y-0 left-0 w-[50vw] overflow-hidden z-30 pointer-events-none border-r-2 border-teal-400/80 shadow-[6px_0_35px_rgba(45,212,191,0.6)]"
+          >
+            {/* Anchored to Left Edge to display the exact left 50% */}
+            <div className="absolute top-0 left-0 w-screen h-screen">
+              {renderLoginContent(true)}
+            </div>
+            {/* Darkening depth shadow on door parting */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.35 }}
+              transition={{ duration: 0.7 }}
+              className="absolute inset-0 bg-slate-950 pointer-events-none"
+            />
+          </motion.div>
+
+          {/* 3. Right Half of the Login Page (Splits to the Right) */}
+          <motion.div
+            initial={{ x: 0 }}
+            animate={{ x: '105%' }}
+            transition={{ duration: 1.1, ease: [0.77, 0, 0.175, 1] }}
+            className="fixed inset-y-0 right-0 w-[50vw] overflow-hidden z-30 pointer-events-none border-l-2 border-teal-400/80 shadow-[-6px_0_35px_rgba(45,212,191,0.6)]"
+          >
+            {/* Anchored to Right Edge to display the exact right 50% */}
+            <div className="absolute top-0 right-0 w-screen h-screen">
+              {renderLoginContent(true)}
+            </div>
+            {/* Darkening depth shadow on door parting */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.35 }}
+              transition={{ duration: 0.7 }}
+              className="absolute inset-0 bg-slate-950 pointer-events-none"
+            />
+          </motion.div>
+
+          {/* 4. Vertical Center Seam Laser Burst (Flashes down the middle split line) */}
+          <motion.div
+            initial={{ scaleY: 0, opacity: 0, scaleX: 1 }}
+            animate={{
+              scaleY: [0, 1, 1],
+              opacity: [0, 1, 0.95, 0],
+              scaleX: [1, 2.5, 4, 0],
+            }}
+            transition={{ duration: 0.85, ease: 'easeOut' }}
+            className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-1 bg-gradient-to-b from-teal-300 via-emerald-300 to-cyan-300 shadow-[0_0_35px_#2dd4bf,0_0_15px_#fff] z-40 pointer-events-none"
+          />
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Login;
-

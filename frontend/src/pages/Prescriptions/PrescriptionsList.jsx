@@ -113,7 +113,7 @@ export default function PrescriptionsList() {
         <div>
           <div className="flex items-center space-x-2 text-xs font-semibold text-brand-600 uppercase tracking-wider mb-1">
             <FileText className="w-4 h-4" />
-            <span>Phase 11 — Electronic Medication Orders</span>
+            <span>Electronic Medication Orders</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
             Digital Prescriptions (Rx)
@@ -174,7 +174,7 @@ export default function PrescriptionsList() {
         <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
           <div className="text-brand-600 text-xs font-medium flex items-center">
             <Pill className="w-3.5 h-3.5 mr-1" />
-            Ready for Phase 12
+            Pharmacy Fulfillment
           </div>
           <div className="text-xs text-slate-500 mt-2 font-medium">
             Pharmacy Inventory Auto-Sync

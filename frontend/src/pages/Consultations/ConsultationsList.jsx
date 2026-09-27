@@ -82,7 +82,7 @@ export default function ConsultationsList() {
         <div>
           <div className="flex items-center space-x-2 text-xs font-semibold text-brand-600 uppercase tracking-wider mb-1">
             <Stethoscope className="w-4 h-4" />
-            <span>Phase 10 — Clinical Documentation</span>
+            <span>Clinical Documentation</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
             Doctor Consultations & Clinical Visits

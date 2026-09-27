@@ -33,7 +33,7 @@ export const AdyapanLogo = ({
         src="/adyapan-logo.png"
         alt="Adyapan Hospital Logo"
         className={`w-full h-full object-contain rounded-full transition-transform duration-300 group-hover:scale-105 ${
-          glow ? 'filter drop-shadow-[0_4px_12px_rgba(245,158,11,0.38)]' : 'shadow-sm'
+          glow ? 'filter drop-shadow-[0_4px_12px_rgba(5,119,90,0.45)]' : 'shadow-sm'
         }`}
         loading="eager"
         decoding="async"

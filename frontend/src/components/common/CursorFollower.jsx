@@ -126,7 +126,7 @@ export const CursorFollower = () => {
           left: `${position.x}px`,
           top: `${position.y}px`,
           transform: 'translate(-50%, -50%)',
-          boxShadow: '0 0 10px rgba(249, 208, 84, 0.8)',
+          boxShadow: '0 0 10px rgba(5, 119, 90, 0.8)',
         }}
       />
 
