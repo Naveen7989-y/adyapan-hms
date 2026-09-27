@@ -7,6 +7,7 @@ import walkFrame4 from '../../assets/dr-junior-walk-f4.png';
 import standing3DImg from '../../assets/dr-junior-standing-transparent.png';
 import prescription3DImg from '../../assets/dr-junior-prescription-transparent.png';
 import DrJuniorChatbot from './DrJuniorChatbot';
+import '@google/model-viewer';
 
 const WALK_CYCLE_FRAMES = [walkFrame1, walkFrame2, walkFrame3, walkFrame4];
 
@@ -187,67 +188,48 @@ export const PediatricBuddy = () => {
         {/* Ambient Warm Golden Aura Behind Character */}
         <div className="absolute inset-0 -top-4 w-40 h-48 sm:w-48 sm:h-56 bg-amber-400/15 rounded-full blur-2xl pointer-events-none group-hover:bg-amber-400/25 transition-all" />
 
-        {/* Walking Stride & Bob Wrapper */}
-        <div>
-          {/* 3D Character with Infinite Stride Bobbing */}
+        {/* 3D GLB Character Model Viewer */}
+        <div className="relative">
           <div
             className={`relative transition-all duration-300 ease-out transform ${
-              isWalkingActive ? 'animate-junior-stride group-hover:[animation-play-state:paused]' : ''
-            } ${
-              isBouncing
-                ? 'scale-110 -translate-y-3'
-                : 'hover:-translate-y-1.5 hover:scale-105'
+              isBouncing ? 'scale-110 -translate-y-3' : 'hover:-translate-y-1 hover:scale-105'
             }`}
           >
-            {pose === 'walking' ? (
-              /* 4-Frame Sequential Walk Cycle with Smooth Cross-Fade */
-              <div className="relative w-36 h-36 sm:w-48 sm:h-48">
-                {WALK_CYCLE_FRAMES.map((frameImg, idx) => (
-                  <img
-                    key={idx}
-                    src={frameImg}
-                    alt={`3D Dr Junior Walking Step ${idx + 1}`}
-                    className={`absolute inset-0 w-full h-full object-contain filter drop-shadow-[0_12px_20px_rgba(11,21,36,0.16)] transition-opacity duration-300 ease-in-out ${
-                      frameIndex === idx ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
-                    }`}
-                    loading="eager"
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="relative w-36 h-36 sm:w-48 sm:h-48">
-                <img
-                  src={pose === 'reading' ? prescription3DImg : standing3DImg}
-                  alt="3D Dr Junior Hospital Mascot"
-                  className="w-full h-full object-contain filter drop-shadow-[0_12px_20px_rgba(11,21,36,0.16)]"
-                  loading="eager"
-                />
-              </div>
-            )}
+            <div className="relative w-36 h-48 sm:w-44 sm:h-56 flex items-center justify-center">
+              <model-viewer
+                src="/models/doctor.glb"
+                alt="3D Animated Doctor Mascot"
+                auto-rotate=""
+                rotation-per-second="20deg"
+                camera-controls=""
+                autoplay=""
+                shadow-intensity="1.5"
+                shadow-softness="0.7"
+                exposure="1.15"
+                interaction-prompt="none"
+                loading="eager"
+                poster="/assets/dr-junior-standing-transparent.png"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: 'transparent',
+                  outline: 'none',
+                }}
+              />
+            </div>
 
-            {/* Realistic 3D Ground Contact Shadow Pulsing with Walking Footsteps */}
+            {/* Realistic 3D Ground Contact Shadow */}
             <div
-              className={`w-28 sm:w-36 h-3 bg-navy-950/25 rounded-full filter blur-[3px] mx-auto -mt-3 transform scale-y-75 pointer-events-none ${
-                isWalkingActive ? 'animate-junior-shadow group-hover:[animation-play-state:paused]' : ''
-              }`}
+              className="w-28 sm:w-36 h-3 bg-navy-950/25 rounded-full filter blur-[3px] mx-auto -mt-3 transform scale-y-75 pointer-events-none"
             />
           </div>
         </div>
 
         {/* Mini Ground Status Pill */}
         <div className="text-center mt-1.5">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 dark:bg-navy-900/95 backdrop-blur-md border border-amber-300 dark:border-amber-500/50 text-[10px] font-black text-navy-950 dark:text-amber-300 shadow-sm dark:shadow-md opacity-90 group-hover:opacity-100 group-hover:border-amber-400 dark:group-hover:border-amber-400 transition-all">
-            {pose === 'walking' ? (
-              <>
-                <Footprints className="w-3 h-3 text-emerald-600 dark:text-emerald-400 animate-bounce" />
-                <span className="text-navy-950 dark:text-amber-200">Dr. Junior • Walking Rounds</span>
-              </>
-            ) : (
-              <>
-                <FileText className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                <span className="text-navy-950 dark:text-amber-200">Dr. Junior • Checking Rx</span>
-              </>
-            )}
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 dark:bg-navy-900/95 backdrop-blur-md border border-teal-300 dark:border-teal-500/50 text-[10px] font-black text-navy-950 dark:text-teal-300 shadow-sm dark:shadow-md opacity-90 group-hover:opacity-100 group-hover:border-teal-400 dark:group-hover:border-teal-400 transition-all">
+            <Footprints className="w-3 h-3 text-emerald-600 dark:text-emerald-400 animate-bounce" />
+            <span className="text-navy-950 dark:text-teal-200">3D Dr. Junior • Interactive Model</span>
           </span>
         </div>
       </div>
