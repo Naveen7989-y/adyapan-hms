@@ -22,11 +22,15 @@ server.listen(config.port, () => {
   console.log(` Socket.IO: Real-Time Engine Active`);
   console.log(`===================================================`);
 
+  
   // Run day-change auto-expiration immediately on start
   expirePastDayAppointments().catch((err) =>
     console.error('Initial auto-expire failed:', err.message)
   );
-
+  setInterval(()=>{
+    console.log(process.memoryUsage())
+    console.log('Heartbeat: ' + new Date().toISOString());
+  }, 300000);
   // Set recurring check every 10 minutes to auto-expire when date rolls over to midnight
   setInterval(() => {
     expirePastDayAppointments().catch((err) =>

@@ -22,4 +22,3 @@ export const config = {
   redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
   googlePlacesApiKey: process.env.GOOGLE_PLACES_API_KEY || '',
 };
-
