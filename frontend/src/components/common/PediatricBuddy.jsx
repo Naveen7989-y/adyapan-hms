@@ -7,7 +7,6 @@ import walkFrame4 from '../../assets/dr-junior-walk-f4.png';
 import standing3DImg from '../../assets/dr-junior-standing-transparent.png';
 import prescription3DImg from '../../assets/dr-junior-prescription-transparent.png';
 import DrJuniorChatbot from './DrJuniorChatbot';
-import '@google/model-viewer';
 
 const WALK_CYCLE_FRAMES = [walkFrame1, walkFrame2, walkFrame3, walkFrame4];
 
@@ -53,6 +52,23 @@ export const PediatricBuddy = () => {
   const [frameIndex, setFrameIndex] = useState(0); // 0, 1, 2, 3 sequential footsteps
   const [isPaused, setIsPaused] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [is3DActive, setIs3DActive] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024;
+    }
+    return false;
+  });
+  const [modelViewerReady, setModelViewerReady] = useState(false);
+
+  useEffect(() => {
+    if (is3DActive && !customElements.get('model-viewer')) {
+      import('@google/model-viewer')
+        .then(() => setModelViewerReady(true))
+        .catch((err) => console.warn('3D engine lazy load:', err));
+    } else if (is3DActive) {
+      setModelViewerReady(true);
+    }
+  }, [is3DActive]);
 
   // Automatically cycle activities
   useEffect(() => {
@@ -188,7 +204,7 @@ export const PediatricBuddy = () => {
         {/* Ambient Warm Golden Aura Behind Character */}
         <div className="absolute inset-0 -top-4 w-40 h-48 sm:w-48 sm:h-56 bg-amber-400/15 rounded-full blur-2xl pointer-events-none group-hover:bg-amber-400/25 transition-all" />
 
-        {/* 3D GLB Character Model Viewer */}
+        {/* Character Visual: Interactive 3D Model on Desktop / Lightweight 2D Mascot on Mobile */}
         <div className="relative">
           <div
             className={`relative transition-all duration-300 ease-out transform ${
@@ -196,41 +212,65 @@ export const PediatricBuddy = () => {
             }`}
           >
             <div className="relative w-36 h-48 sm:w-44 sm:h-56 flex items-center justify-center">
-              <model-viewer
-                src="/models/doctor.glb"
-                alt="3D Animated Doctor Mascot"
-                auto-rotate=""
-                rotation-per-second="20deg"
-                camera-controls=""
-                autoplay=""
-                shadow-intensity="1.5"
-                shadow-softness="0.7"
-                exposure="1.15"
-                interaction-prompt="none"
-                loading="eager"
-                poster="/assets/dr-junior-standing-transparent.png"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  backgroundColor: 'transparent',
-                  outline: 'none',
-                }}
-              />
+              {is3DActive ? (
+                <model-viewer
+                  src="/models/doctor.glb"
+                  alt="3D Animated Doctor Mascot"
+                  auto-rotate=""
+                  rotation-per-second="20deg"
+                  camera-controls=""
+                  autoplay=""
+                  shadow-intensity="1.5"
+                  shadow-softness="0.7"
+                  exposure="1.15"
+                  interaction-prompt="none"
+                  loading="lazy"
+                  poster="/assets/dr-junior-standing-transparent.png"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'transparent',
+                    outline: 'none',
+                  }}
+                />
+              ) : (
+                <img
+                  src={
+                    pose === 'reading'
+                      ? prescription3DImg
+                      : (isWalkingActive ? WALK_CYCLE_FRAMES[frameIndex] : standing3DImg)
+                  }
+                  alt="Dr. Junior Mascot"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-contain filter drop-shadow-md select-none pointer-events-none transition-transform duration-300"
+                />
+              )}
             </div>
 
-            {/* Realistic 3D Ground Contact Shadow */}
+            {/* Realistic Ground Contact Shadow */}
             <div
               className="w-28 sm:w-36 h-3 bg-navy-950/25 rounded-full filter blur-[3px] mx-auto -mt-3 transform scale-y-75 pointer-events-none"
             />
           </div>
         </div>
 
-        {/* Mini Ground Status Pill */}
-        <div className="text-center mt-1.5">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 dark:bg-navy-900/95 backdrop-blur-md border border-teal-300 dark:border-teal-500/50 text-[10px] font-black text-navy-950 dark:text-teal-300 shadow-sm dark:shadow-md opacity-90 group-hover:opacity-100 group-hover:border-teal-400 dark:group-hover:border-teal-400 transition-all">
+        {/* Mini Ground Status / 3D Toggle Pill */}
+        <div className="text-center mt-1.5 flex items-center justify-center">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIs3DActive((prev) => !prev);
+            }}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 dark:bg-navy-900/95 backdrop-blur-md border border-teal-300 dark:border-teal-500/50 text-[10px] font-black text-navy-950 dark:text-teal-300 shadow-sm dark:shadow-md opacity-90 hover:opacity-100 hover:border-teal-400 dark:hover:border-teal-400 transition-all cursor-pointer"
+            title={is3DActive ? 'Switch to lightweight 2D mode' : 'Switch to interactive 3D model'}
+          >
             <Footprints className="w-3 h-3 text-emerald-600 dark:text-emerald-400 animate-bounce" />
-            <span className="text-navy-950 dark:text-teal-200">3D Dr. Junior • Interactive Model</span>
-          </span>
+            <span className="text-navy-950 dark:text-teal-200">
+              {is3DActive ? '3D Active • Tap for 2D' : 'Dr. Junior • Tap for 3D'}
+            </span>
+          </button>
         </div>
       </div>
     </div>

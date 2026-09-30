@@ -1,11 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Activity } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export default function VibrantWellnessApp({ onBeginJourney }) {
   const videoRef = useRef(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
   useEffect(() => {
+    // Only attempt video playback on desktop/tablet devices where video element is rendered
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      return;
+    }
     const video = videoRef.current;
     if (video) {
       video.defaultMuted = true;
@@ -36,8 +40,6 @@ export default function VibrantWellnessApp({ onBeginJourney }) {
     <div id="home" className="relative min-h-[92vh] sm:min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-[#06101E] via-[#0A1A2F] to-[#040A14] font-['Inter',sans-serif] text-white selection:bg-emerald-500/30 selection:text-white">
       
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
         .liquid-glass {
           background: rgba(255, 255, 255, 0.04);
           background-blend-mode: luminosity;
@@ -61,28 +63,30 @@ export default function VibrantWellnessApp({ onBeginJourney }) {
         }
       `}</style>
 
-      {/* Ambient Lighting Orbs */}
-      <div className="absolute top-1/4 left-10 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl pointer-events-none animate-ambient-glow" />
-      <div className="absolute bottom-10 right-10 w-[30rem] h-[30rem] bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow" style={{ animationDelay: '3s' }} />
-      <div className="absolute top-1/2 right-1/4 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Ambient Lighting Orbs - Hidden on mobile to prevent GPU composite lag */}
+      <div className="hidden md:block absolute top-1/4 left-10 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl pointer-events-none animate-ambient-glow" />
+      <div className="hidden md:block absolute bottom-10 right-10 w-[30rem] h-[30rem] bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow" style={{ animationDelay: '3s' }} />
+      <div className="hidden md:block absolute top-1/2 right-1/4 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Video Background Layer */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
+      {/* Mobile-optimized high-performance cinematic backdrop (0 KB video transfer) */}
+      <div className="md:hidden absolute inset-0 z-0 bg-gradient-to-b from-[#06101E] via-[#091526] to-[#06101E] overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-900/30 via-transparent to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#06101E] to-transparent" />
+      </div>
+
+      {/* Desktop/Tablet Video Background Layer (Only rendered on screens >= 768px) */}
+      <div className="hidden md:block absolute inset-0 z-0 overflow-hidden">
         <video
           ref={videoRef}
           autoPlay
           loop
           muted
           playsInline
-          poster="/hero-heart-bg.jpg"
+          preload="metadata"
           className="absolute inset-0 h-full w-full object-cover scale-105 filter brightness-95 contrast-105 transition-opacity duration-1000"
           style={{ opacity: isVideoPlaying ? 0.9 : 0.6 }}
         >
           <source src="/videos/hero-wellness.mp4" type="video/mp4" />
-          <source
-            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260715_082433_69699cf8-444b-4484-93cc-053e57896dfd.mp4"
-            type="video/mp4"
-          />
           Your browser does not support the video tag.
         </video>
         {/* Subtle cinematic gradient overlay for perfect readability */}
@@ -101,18 +105,24 @@ export default function VibrantWellnessApp({ onBeginJourney }) {
               <img
                 src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100"
                 alt="Doctor 1"
+                loading="lazy"
+                decoding="async"
                 className="h-6 w-6 rounded-full border-2 border-white/20 object-cover"
                 onError={(e) => { e.currentTarget.style.display = 'none'; }}
               />
               <img
                 src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100"
                 alt="Doctor 2"
+                loading="lazy"
+                decoding="async"
                 className="h-6 w-6 rounded-full border-2 border-white/20 object-cover"
                 onError={(e) => { e.currentTarget.style.display = 'none'; }}
               />
               <img
                 src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100"
                 alt="Doctor 3"
+                loading="lazy"
+                decoding="async"
                 className="h-6 w-6 rounded-full border-2 border-white/20 object-cover"
                 onError={(e) => { e.currentTarget.style.display = 'none'; }}
               />
@@ -129,9 +139,26 @@ export default function VibrantWellnessApp({ onBeginJourney }) {
           </h1>
 
           {/* Subtitle */}
-          <p className="mt-5 text-base sm:text-lg md:text-xl font-light text-slate-200 max-w-xl leading-relaxed">
-            Holistic wellness. Transformative results. Reconnect your mind, body, and spirit with our clinically backed natural healing pathways.
-          </p>
+          <div className="mt-6 max-w-xl">
+            <div className="relative rounded-2xl liquid-glass px-5 py-4 border border-white/10 shadow-xl backdrop-blur-md overflow-hidden">
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-emerald-400 via-teal-400 to-amber-300" />
+              <p className="text-base sm:text-lg leading-relaxed text-slate-200 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                <span className="font-semibold text-white tracking-wide">
+                  Holistic wellness.
+                </span>{' '}
+                <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-amber-200">
+                  Transformative results.
+                </span>{' '}
+                <span className="text-slate-300">
+                  Reconnect your{' '}
+                  <span className="text-white font-medium">mind, body, and spirit</span> with our{' '}
+                  <span className="text-emerald-300 font-medium underline decoration-emerald-400/40 decoration-2 underline-offset-4">
+                    clinically backed healing pathways
+                  </span>.
+                </span>
+              </p>
+            </div>
+          </div>
 
           {/* CTA Button Row */}
           <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -143,14 +170,6 @@ export default function VibrantWellnessApp({ onBeginJourney }) {
               <span>Begin Your Journey</span>
               <ArrowRight className="w-4 h-4 text-emerald-300 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
-
-            <a
-              href="#token-tracker"
-              className="rounded-full px-6 py-3.5 text-sm sm:text-base font-medium text-slate-300 hover:text-white transition-colors duration-200 flex items-center gap-2"
-            >
-              <Activity className="w-4 h-4 text-teal-400" />
-              <span>Track Live Token</span>
-            </a>
           </div>
 
         </div>

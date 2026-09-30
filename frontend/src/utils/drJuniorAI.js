@@ -143,7 +143,7 @@ export function generateDrJuniorResponse(rawInput) {
     query.includes('turn')
   ) {
     return {
-      text: `🎫 **Tracking Your Live OPD Token:**\n\n1. Scroll down to the **"Track Your Live OPD Token Status"** section on this homepage (or click the button below).\n2. Enter your **Token #** (e.g. \`GEN-001\`, \`CARD-102\`, or simple number \`1\`) or your **UHID**.\n3. Instantly see how many patients are ahead of you, your estimated wait time, and your assigned doctor's room!\n\n📺 You can also check the **Live TV Screen** broadcast in the central waiting hall.`,
+      text: `🎫 **Tracking Your Live OPD Token:**\n\n1. Scroll down to the **"Track Your Live OPD Token Status"** section on this homepage (or click the button below).\n2. Enter your **Token #** (e.g. \`GEN-001\`, \`CARD-102\`, or simple number \`1\`).\n3. Instantly see how many patients are ahead of you, your estimated wait time, and your assigned doctor's room!\n\n📺 You can also check the **Live TV Screen** broadcast in the central waiting hall.`,
       action: { type: 'scroll', label: 'Go to Token Tracker', targetId: 'token-tracker' },
     };
   }

@@ -1,13 +1,17 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { PatientAuthProvider } from './context/PatientAuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './routes/ProtectedRoute';
+import PatientProtectedRoute from './routes/PatientProtectedRoute';
 import Layout from './components/common/Layout';
-import Home from './pages/Home';
 
-// Eagerly loaded public authentication page
-import Login from './pages/Login';
+// Public pages dynamically code-split for lightning-fast mobile First Contentful Paint
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Login'));
+const PatientLogin = lazy(() => import('./pages/Patient/PatientLogin'));
+const PatientPortal = lazy(() => import('./pages/Patient/PatientPortal'));
 
 // Dynamic code-splitting for secondary, administrative, and clinical modules
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -46,18 +50,28 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Suspense fallback={<PageLoadingFallback />}>
-        <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/unauthorized" element={<Unauthorized />} />
-        <Route path="/queue/tv" element={<QueueTvDisplay />} />
+        <PatientAuthProvider>
+          <Suspense fallback={<PageLoadingFallback />}>
+          <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/patient/login" element={<PatientLogin />} />
+          <Route
+            path="/patient/portal"
+            element={
+              <PatientProtectedRoute>
+                <PatientPortal />
+              </PatientProtectedRoute>
+            }
+          />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/queue/tv" element={<QueueTvDisplay />} />
 
-        {/* Protected Staff Routes */}
-        <Route
-          element={
-            <ProtectedRoute>
+          {/* Protected Staff Routes */}
+          <Route
+            element={
+              <ProtectedRoute>
               <Layout />
             </ProtectedRoute>
           }
@@ -320,6 +334,7 @@ function App() {
         </Route>
         </Routes>
       </Suspense>
+      </PatientAuthProvider>
       </AuthProvider>
     </ThemeProvider>
   );

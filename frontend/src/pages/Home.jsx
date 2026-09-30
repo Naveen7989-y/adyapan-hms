@@ -1,15 +1,20 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { usePatientAuth } from '../context/PatientAuthContext';
 import api from '../services/api';
 import HeartbeatLogo from '../components/common/HeartbeatLogo';
-import ChamberDetailModal from '../components/common/ChamberDetailModal';
-import QuickAssistWidget from '../components/common/QuickAssistWidget';
-import PediatricBuddy from '../components/common/PediatricBuddy';
 import ThemeToggle from '../components/common/ThemeToggle';
 import { HealthcareDiscoveryCTA } from '../components/discovery/HealthcareDiscoveryCTA';
-import { HealthcareDiscoveryModal } from '../components/discovery/HealthcareDiscoveryModal';
 import VibrantWellnessHero from '../components/hero/VibrantWellnessHero';
+
+// Secondary interactive modules code-split for mobile speed
+const ChamberDetailModal = lazy(() => import('../components/common/ChamberDetailModal'));
+const QuickAssistWidget = lazy(() => import('../components/common/QuickAssistWidget'));
+const PediatricBuddy = lazy(() => import('../components/common/PediatricBuddy'));
+const HealthcareDiscoveryModal = lazy(() =>
+  import('../components/discovery/HealthcareDiscoveryModal').then((m) => ({ default: m.HealthcareDiscoveryModal }))
+);
 import {
   Activity,
   ArrowRight,
@@ -44,7 +49,6 @@ import {
   HeartPulse,
   Siren,
 } from 'lucide-react';
-import hospitalFacilityImg from '../assets/hospital-facility.jpg';
 
 const SPECIALTIES = [
   {
@@ -155,10 +159,10 @@ const CAPABILITIES = [
   {
     title: 'Paperless Digital Health Records',
     description:
-      'Unique Patient UHIDs, structured digital prescriptions with dosage calculators, and instant automated encounter invoicing.',
+      'Structured digital prescriptions with dosage calculators, paperless clinical records, and instant automated encounter invoicing.',
     icon: Activity,
     gradient: 'from-amber-600 to-amber-700',
-    tag: 'Instant UHID',
+    tag: 'Digital Health Records',
   },
   {
     title: 'Multi-Role Clinical Security',
@@ -280,8 +284,16 @@ const ScrollReveal = ({
 
 export const Home = () => {
   const { user, isAuthenticated } = useAuth();
+  const { patient, isAuthenticated: isPatientAuthenticated, logout: logoutPatient } = usePatientAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Exiting from patient portal to homepage automatically signs out patient
+  useEffect(() => {
+    if (isPatientAuthenticated || patient) {
+      logoutPatient();
+    }
+  }, [isPatientAuthenticated, patient, logoutPatient]);
 
   // Self-service Token Tracker State
   const [searchToken, setSearchToken] = useState('');
@@ -313,6 +325,9 @@ export const Home = () => {
     prefersReducedMotion.current =
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion.current) return;
+
+    // Skip heavy scroll state updates on mobile to prevent forced reflows & maintain 60/120fps
+    if (window.innerWidth < 768) return;
 
     let ticking = false;
     const handleScroll = () => {
@@ -378,7 +393,7 @@ export const Home = () => {
     const query = rawQuery.trim().toUpperCase();
 
     if (!query) {
-      setSearchError('Please enter a Token Number (e.g., T-001, GEN-001, or 1) or Patient UHID.');
+      setSearchError('Please enter a Token Number (e.g., T-001, GEN-001, or 1).');
       setTrackResult(null);
       return;
     }
@@ -446,19 +461,15 @@ export const Home = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]/60 dark:bg-[#070D18]/60 bg-cyber-grid text-[#334155] dark:text-slate-100 selection:bg-[#CCFBF1] dark:selection:bg-amber-800 selection:text-[#0D9488] dark:selection:text-amber-100 relative overflow-x-clip font-sans transition-colors duration-300">
-      {/* Interactive Chamber Details Modal */}
-      <ChamberDetailModal
-        chamber={selectedChamber}
-        isOpen={!!selectedChamber}
-        onClose={() => setSelectedChamber(null)}
-        onSelectToken={handleQuickSelectToken}
-      />
-
       {/* Floating 24/7 Patient & Emergency Hub */}
-      <QuickAssistWidget onQuickTrack={handleQuickSelectToken} />
+      <Suspense fallback={null}>
+        <QuickAssistWidget onQuickTrack={handleQuickSelectToken} />
+      </Suspense>
 
       {/* Playful Pediatric Prescription Buddy on bottom-left */}
-      <PediatricBuddy />
+      <Suspense fallback={null}>
+        <PediatricBuddy />
+      </Suspense>
 
       {/* Ambient Cyber Light Glow Orbs with Parallax Depth */}
       <div
@@ -551,17 +562,9 @@ export const Home = () => {
               {/* Logo & Brand Emblem */}
               <Link to="/" className="flex items-center gap-3 group">
                 <HeartbeatLogo size="md" className="group-hover:scale-105 transition-all duration-300" />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl sm:text-2xl font-black text-[#334155] dark:text-white tracking-tight">
-                      ADYAPAN
-                    </span>
-                  
-                  </div>
-                  <p className="text-[10px] sm:text-[11px] font-bold text-[#0D9488] dark:text-amber-400 uppercase tracking-wider">
-                    Hospital & Smart Queue Ecosystem
-                  </p>
-                </div>
+                <span className="text-xl sm:text-2xl font-black text-[#334155] dark:text-white tracking-tight">
+                  ADYAPAN
+                </span>
               </Link>
 
               {/* Desktop Navigation Links */}
@@ -601,27 +604,36 @@ export const Home = () => {
                 </Link>
               </nav>
 
-              {/* Right Action: Theme Toggle & Staff Login Button */}
-              <div className="hidden sm:flex items-center gap-3">
-                {/* Light / Dark Mode Toggle Button beside Login */}
+              {/* Right Action: Theme Toggle, Patient Portal & Staff Login Button */}
+              <div className="hidden sm:flex items-center gap-2.5 shrink-0">
+                {/* Light / Dark Mode Toggle Button */}
                 <ThemeToggle />
+
+                {/* Patient Health Portal Link */}
+                <Link
+                  to="/patient/login"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-teal-800 dark:text-teal-200 bg-teal-50 dark:bg-teal-950/70 hover:bg-teal-100 dark:hover:bg-teal-900 border border-teal-300 dark:border-teal-700/60 shadow-xs transition-all whitespace-nowrap shrink-0"
+                >
+                  <HeartPulse className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                  <span>Patient Portal</span>
+                </Link>
 
                 {isAuthenticated ? (
                   <button
                     onClick={() => navigate('/dashboard')}
-                    className="shimmer-btn flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold text-white bg-[#0D9488] hover:bg-[#0F766E] dark:text-white dark:bg-gradient-to-r dark:from-amber-600 dark:to-amber-500 dark:hover:from-amber-700 dark:hover:to-amber-600 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
+                    className="shimmer-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold text-white bg-[#0D9488] hover:bg-[#0F766E] dark:text-white dark:bg-gradient-to-r dark:from-amber-600 dark:to-amber-500 dark:hover:from-amber-700 dark:hover:to-amber-600 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 whitespace-nowrap shrink-0"
                   >
                     <span>Staff Dashboard</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 shrink-0" />
                   </button>
                 ) : (
                   <Link
                     to="/login"
-                    className="shimmer-btn flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold text-white bg-[#0D9488] hover:bg-[#0F766E] border border-[#0D9488]/30 dark:bg-gradient-to-r dark:from-amber-600 dark:via-amber-500 dark:to-amber-600 dark:text-white dark:border-amber-400/50 shadow-sm hover:shadow-md dark:shadow-gold-glow transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
+                    className="shimmer-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold text-white bg-[#0D9488] hover:bg-[#0F766E] border border-[#0D9488]/30 dark:bg-gradient-to-r dark:from-amber-600 dark:via-amber-500 dark:to-amber-600 dark:text-white dark:border-amber-400/50 shadow-sm hover:shadow-md dark:shadow-gold-glow transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap shrink-0"
                   >
-                    <Lock className="w-4 h-4 text-white dark:text-white" />
-                    <span>Staff Portal / Sign In</span>
-                    <ArrowRight className="w-4 h-4 text-white dark:text-white group-hover:translate-x-0.5 transition-transform" />
+                    <Lock className="w-4 h-4 text-white dark:text-white shrink-0" />
+                    <span>Staff Sign In</span>
+                    <ArrowRight className="w-4 h-4 text-white dark:text-white group-hover:translate-x-0.5 transition-transform shrink-0" />
                   </Link>
                 )}
               </div>
@@ -693,11 +705,19 @@ export const Home = () => {
                 <Tv className="w-4 h-4 text-[#0D9488] dark:text-amber-400" />
                 Public Waiting Hall TV Display
               </Link>
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
+                <Link
+                  to="/patient/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex justify-center items-center gap-2 py-2 rounded-lg bg-teal-50 dark:bg-teal-950/80 text-teal-800 dark:text-teal-200 border border-teal-300 dark:border-teal-700/60 font-semibold text-xs shadow-xs"
+                >
+                  <HeartPulse className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                  <span>Patient Portal</span>
+                </Link>
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full flex justify-center items-center gap-2 py-3 rounded-xl bg-[#0D9488] hover:bg-[#0F766E] text-white font-extrabold text-sm shadow-sm"
+                  className="w-full flex justify-center items-center gap-2 py-2.5 rounded-xl bg-[#0D9488] hover:bg-[#0F766E] text-white font-extrabold text-sm shadow-sm"
                 >
                   <Lock className="w-4 h-4 text-white" />
                   <span>Hospital Staff Sign In</span>
@@ -749,7 +769,7 @@ export const Home = () => {
                     type="text"
                     value={searchToken}
                     onChange={(e) => setSearchToken(e.target.value)}
-                    placeholder="Enter Token # (e.g., GEN-001, CARD-102) or UHID"
+                    placeholder="Enter Token # (e.g., GEN-001, CARD-102)"
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-navy-700 bg-[#F8FAFC] dark:bg-navy-950 text-sm font-semibold text-[#334155] dark:text-white placeholder-[#64748B]/60 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:border-transparent transition-all"
                   />
                 </div>
@@ -799,7 +819,7 @@ export const Home = () => {
                           </span>
                           {trackResult.patientName && (
                             <span className="text-[10px] text-[#64748B] dark:text-slate-400 font-mono font-semibold">
-                              • Patient: {trackResult.patientName} {trackResult.uhid ? `(${trackResult.uhid})` : ''}
+                              • Patient: {trackResult.patientName}
                             </span>
                           )}
                         </div>
@@ -833,7 +853,7 @@ export const Home = () => {
                       <div className="absolute top-4 left-6 right-6 h-0.5 bg-slate-200 dark:bg-navy-800 -z-0" />
                       
                       {[
-                        { label: 'Registered', sub: 'UHID Verified' },
+                        { label: 'Registered', sub: 'Check-in Verified' },
                         { label: 'Waiting Hall', sub: 'Queue Staged' },
                         { label: 'Vital Triage', sub: 'Nurse Station' },
                         { label: 'Doctor Suite', sub: 'Consultation' },
@@ -1268,23 +1288,29 @@ export const Home = () => {
       </ScrollReveal>
     </footer>
 
-    {/* Chamber Detail Modal */}
+    {/* Chamber Detail Modal (Lazy loaded on click) */}
     {selectedChamber && (
-      <ChamberDetailModal
-        chamber={selectedChamber}
-        isOpen={Boolean(selectedChamber)}
-        onClose={() => setSelectedChamber(null)}
-        onSelectToken={(token) => handleQuickSelectToken(token)}
-      />
+      <Suspense fallback={null}>
+        <ChamberDetailModal
+          chamber={selectedChamber}
+          isOpen={Boolean(selectedChamber)}
+          onClose={() => setSelectedChamber(null)}
+          onSelectToken={(token) => handleQuickSelectToken(token)}
+        />
+      </Suspense>
     )}
 
-    {/* Real-time Healthcare Discovery Popup Modal */}
-    <HealthcareDiscoveryModal
-      isOpen={isDiscoveryOpen}
-      onClose={() => setIsDiscoveryOpen(false)}
-      initialTab={discoveryTab}
-      autoLocate={discoveryAutoLocate}
-    />
+    {/* Real-time Healthcare Discovery Popup Modal (Lazy loaded on click) */}
+    {isDiscoveryOpen && (
+      <Suspense fallback={null}>
+        <HealthcareDiscoveryModal
+          isOpen={isDiscoveryOpen}
+          onClose={() => setIsDiscoveryOpen(false)}
+          initialTab={discoveryTab}
+          autoLocate={discoveryAutoLocate}
+        />
+      </Suspense>
+    )}
     </div>
   );
 };

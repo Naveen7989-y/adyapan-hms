@@ -68,8 +68,8 @@ export const HealthcareDiscoveryCTA = ({ onOpenDiscovery }) => {
                 className="group w-full flex items-center justify-between p-4 rounded-2xl bg-[#0D9488] text-white hover:bg-[#0F766E] dark:bg-navy-800 dark:hover:bg-navy-700/90 border border-[#0D9488] dark:border-navy-600 shadow-md hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 <div className="flex items-center gap-3.5 text-left">
-                  <div className="w-11 h-11 rounded-xl bg-white/20 text-white flex items-center justify-center font-bold shrink-0 shadow-sm">
-                    <Hospital className="w-5 h-5" />
+                  <div className="w-11 h-11 rounded-xl bg-white dark:bg-navy-900 text-[#0D9488] dark:text-amber-400 flex items-center justify-center font-bold shrink-0 shadow-sm border border-transparent dark:border-navy-700">
+                    <Hospital className="w-6 h-6 text-[#0D9488] dark:text-amber-400" />
                   </div>
                   <div>
                     <h4 className="text-sm sm:text-base font-black text-white transition-colors">
